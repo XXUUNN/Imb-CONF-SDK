@@ -1,0 +1,3 @@
+rootProject.name='Imb-CONF-SDK'
+include ':app'
+include ':libpoc'
