@@ -251,6 +251,9 @@ public final class JniUtils {
         if (jniListener instanceof GroupEditResultListener) {
             mTempGroupListeners.add((GroupEditResultListener) jniListener);
         }
+        if (jniListener instanceof SktInfoListener) {
+            mSktInfoListeners.add((SktInfoListener) jniListener);
+        }
         if (jniListener instanceof ResetPwdListener) {
             mResetPwdListeners.add((ResetPwdListener) jniListener);
         }
@@ -263,7 +266,9 @@ public final class JniUtils {
         if (jniListener instanceof SynGroupListenStateListener) {
             mSynGroupStateListeners.add((SynGroupListenStateListener) jniListener);
         }
-
+        if (jniListener instanceof CallTypeChangeListener) {
+            mTypeChangeListeners.add((CallTypeChangeListener) jniListener);
+        }
         if (jniListener instanceof AddressUrlListener) {
             addressUrlListeners.add((AddressUrlListener) jniListener);
         }
@@ -306,6 +311,9 @@ public final class JniUtils {
         if (jniListener instanceof GroupEditResultListener) {
             mTempGroupListeners.remove((GroupEditResultListener) jniListener);
         }
+        if (jniListener instanceof SktInfoListener) {
+            mSktInfoListeners.remove((SktInfoListener) jniListener);
+        }
         if (jniListener instanceof ResetPwdListener) {
             mResetPwdListeners.remove((ResetPwdListener) jniListener);
         }
@@ -317,6 +325,9 @@ public final class JniUtils {
         }
         if (jniListener instanceof SynGroupListenStateListener) {
             mSynGroupStateListeners.remove((SynGroupListenStateListener) jniListener);
+        }
+        if (jniListener instanceof CallTypeChangeListener) {
+            mTypeChangeListeners.remove((CallTypeChangeListener) jniListener);
         }
         if (jniListener instanceof AddressUrlListener) {
             addressUrlListeners.remove((AddressUrlListener) jniListener);
@@ -1975,10 +1986,42 @@ public final class JniUtils {
 
     public native void YuvConcatLR(byte[] yuvL, byte[] yuvR, int w, int h, byte[] data);
 
+    /**
+     * 去掉各种监听
+     * 发送服务端登出
+     * 停止掉sip线程
+     * 清理so库的资源
+     * 停止so回调的数据的处理线程
+     */
     public void destroy() {
+        //清除回调
+        removeAllListener();
         PocRegister(0, null, null, "");
         stopPocMainSipThread();
         PocFreeClient();
         stopProcessCallback();
+    }
+
+    private void removeAllListener() {
+        mSipMsgListeners.clear();
+        mTbcpMsgListeners.clear();
+        mTextMsgListeners.clear();
+        mSelfInfoListeners.clear();
+        mAddrBookListeners.clear();
+        mUserStateListeners.clear();
+        mResolutionListeners.clear();
+        mSystemNotifyListeners.clear();
+        mLocalPowerListeners.clear();
+        mTempGroupListeners.clear();
+        mSktInfoListeners.clear();
+        mResetPwdListeners.clear();
+        mGroupStateListeners.clear();
+        mSynGroupStateListeners.clear();
+        mTypeChangeListeners.clear();
+        esipHeadListeners.clear();
+        addressUrlListeners.clear();
+        mUserTypeInfoListeners.clear();
+        mUserChangeInMeetingListenters.clear();
+
     }
 }

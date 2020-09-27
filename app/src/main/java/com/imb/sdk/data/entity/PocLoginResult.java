@@ -5,7 +5,7 @@ package com.imb.sdk.data.entity;
  * created on 2020/9/25-16:31;
  * description - 登录结果
  */
-public class LoginResult {
+public class PocLoginResult {
     /**
      * 0 成功
      * 其他 失败
@@ -19,7 +19,7 @@ public class LoginResult {
      */
     public String msg;
 
-    public LoginResult(int code, String msg) {
+    public PocLoginResult(int code, String msg) {
         this.code = code;
         this.msg = msg;
     }

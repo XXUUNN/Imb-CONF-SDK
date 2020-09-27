@@ -33,4 +33,6 @@ dependencies {
     implementation project(path: ':libpoc')
 
     api group: 'com.jcraft', name: 'jsch', version: '0.1.55'
+    api 'com.squareup.okhttp3:okhttp:4.0.1'
+    api 'com.alibaba:fastjson:1.2.58'
 }

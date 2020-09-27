@@ -15,22 +15,22 @@ import java.util.concurrent.atomic.AtomicInteger;
  * created on 2019/4/29-23:24;
  * description - 登录心跳 保持PoC是登录状态 登录进app后主界面启动时进行发送心跳 结束时关闭心跳
  */
-public class LoginHeartBeatUtils extends PocRegisterListener {
-    private static LoginHeartBeatUtils instance;
+public class PocLoginHeartBeatUtils extends PocRegisterListener {
+    private static PocLoginHeartBeatUtils instance;
 
-    private LoginHeartBeatUtils() {
+    private PocLoginHeartBeatUtils() {
     }
 
     synchronized
-    public static LoginHeartBeatUtils getInstance() {
+    public static PocLoginHeartBeatUtils getInstance() {
         if (instance == null) {
-            instance = new LoginHeartBeatUtils();
+            instance = new PocLoginHeartBeatUtils();
         }
         return instance;
     }
 
     static {
-        instance = new LoginHeartBeatUtils();
+        instance = new PocLoginHeartBeatUtils();
     }
 
     private AtomicInteger errorCount = new AtomicInteger();

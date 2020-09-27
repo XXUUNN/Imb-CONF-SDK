@@ -2,7 +2,7 @@ package com.imb.sdk.manager;
 
 import android.content.Context;
 
-import com.imb.sdk.login.LoginUtils;
+import com.imb.sdk.login.PocLoginUtils;
 
 /**
  * @author - gongxun;
@@ -13,6 +13,8 @@ public class LoginManager extends BaseManager {
     @Override
     public void init(Context context) {
         super.init(context);
-        LoginUtils.getAndroidId(context);
+        PocLoginUtils.getAndroidId(context);
     }
+
+    f
 }

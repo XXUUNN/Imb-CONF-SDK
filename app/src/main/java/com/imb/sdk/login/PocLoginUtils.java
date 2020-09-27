@@ -14,7 +14,7 @@ import com.imb.sdk.Poc;
 import com.imb.sdk.data.PocConstant;
 import com.imb.sdk.data.entity.AccountInfo;
 import com.imb.sdk.data.entity.AppFunctionConfig;
-import com.imb.sdk.data.entity.LoginResult;
+import com.imb.sdk.data.entity.PocLoginResult;
 import com.imb.sdk.listener.PocRegisterListener;
 import com.imb.sdk.listener.PocSyncAddressBookListener;
 import com.microsys.poc.jni.JniUtils;
@@ -35,8 +35,8 @@ import androidx.core.app.ActivityCompat;
  * created on 2020/9/25-12:07;
  * description - 登录
  */
-public class LoginUtils {
-    public static final String TAG = LoginUtils.class.getSimpleName();
+public class PocLoginUtils {
+    public static final String TAG = PocLoginUtils.class.getSimpleName();
 
     private static String singleId;
 
@@ -52,6 +52,16 @@ public class LoginUtils {
         singleId = getSingleKey(context);
     }
 
+    /**
+     * 退出poc的登录状态
+     */
+    public static void logout() {
+        JniUtils.getInstance().destroy();
+    }
+
+    /**
+     * 取消登录
+     */
     public static void stopLogin() {
         if (isOnLogin) {
             if (loginCallable != null) {
@@ -65,11 +75,11 @@ public class LoginUtils {
     /**
      * block mode. must run in a new thread
      *
-     * @param appFunctionConfig
-     * @param accountInfo
+     * @param appFunctionConfig 功能的配置
+     * @param accountInfo       登录的账户的配置
      * @return 登录结果
      */
-    public static LoginResult login(AppFunctionConfig appFunctionConfig, AccountInfo accountInfo) {
+    public static PocLoginResult startLogin(AppFunctionConfig appFunctionConfig, AccountInfo accountInfo) {
         if (isMainThread()) {
             throw new RuntimeException("can not run in main thread");
         }
@@ -79,25 +89,31 @@ public class LoginUtils {
         }
         //检查配置
         if (!checkConfig(appFunctionConfig)) {
+            isOnLogin = false;
             return null;
         }
         if (!checkAccount(accountInfo)) {
+            isOnLogin = false;
             return null;
         }
         //应用配置
         applyConfig(appFunctionConfig);
         //执行登录
         loginCallable = new LoginCallable(appFunctionConfig, accountInfo);
-        Future<LoginResult> task = Executors.newSingleThreadExecutor().submit(loginCallable);
+        Future<PocLoginResult> task = Executors.newSingleThreadExecutor().submit(loginCallable);
         try {
-            LoginResult result = task.get();
+            PocLoginResult result = task.get();
+            isOnLogin = false;
+            loginCallable = null;
             return result;
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return new LoginResult(PocConstant.RegisterResult.RESULT_UNKOWN,
+        isOnLogin = false;
+        loginCallable = null;
+        return new PocLoginResult(PocConstant.RegisterResult.RESULT_UNKOWN,
                 ResponseTranslateUtils.loginResultToDesc(PocConstant.RegisterResult.RESULT_UNKOWN));
     }
 
@@ -159,16 +175,29 @@ public class LoginUtils {
         AppFunctionConfig.LogConfig logConfig = appFunctionConfig.logConfig;
         if (logConfig.isFileLogEnable) {
             if (!TextUtils.isEmpty(logConfig.logDir)) {
-                File file = new File(logConfig.logDir);
+                final File file = new File(logConfig.logDir);
                 if (!file.exists()) {
                     Log.e(TAG, "applyConfig: file logConfig error.dir not exists");
                 } else {
+                    //日志
+                    final File dirFile = file;
+                    final int maxSize = logConfig.maxSizeBytes;
+                    if (maxSize > 0) {
+                        new Thread("logDirCheck") {
+                            @Override
+                            public void run() {
+                                Log.i(TAG, "deleteFileIfSizeMax: start " + dirFile.getPath());
+                                FileUtils.deleteFileIfSizeMax(dirFile, maxSize);
+                                Log.i(TAG, "deleteFileIfSizeMax: end " + dirFile.getPath());
+                            }
+                        }.start();
+                    }
+
                     LogUtil.getInstance().start(logConfig.logDir + File.separator + TimeUtils.currTime() + ".txt");
                     Log.i(TAG, "applyConfig: logConfig error dir not exists");
                 }
             }
         }
-
         //声音配置
         AppFunctionConfig.VoiceConfig voiceConfig = appFunctionConfig.voiceConfig;
         JniUtils.getInstance().PocSetSendFrame(voiceConfig.samplePerChn, voiceConfig.sampleRateHz,
@@ -261,7 +290,7 @@ public class LoginUtils {
     }
 
 
-    private static class LoginCallable extends PocRegisterListener implements Callable<LoginResult> {
+    private static class LoginCallable extends PocRegisterListener implements Callable<PocLoginResult> {
         private volatile boolean isRunning;
 
         /**
@@ -314,7 +343,7 @@ public class LoginUtils {
         }
 
         @Override
-        public LoginResult call() {
+        public PocLoginResult call() {
             curThread = Thread.currentThread();
             if (!isRunning) {
                 return getLoginResult(PocConstant.RegisterResult.RESULT_CANCEL);
@@ -439,12 +468,12 @@ public class LoginUtils {
             }
         }
 
-        private LoginResult getLoginResult(int code) {
-            return new LoginResult(code, ResponseTranslateUtils.loginResultToDesc(code));
+        private PocLoginResult getLoginResult(int code) {
+            return new PocLoginResult(code, ResponseTranslateUtils.loginResultToDesc(code));
         }
 
-        private LoginResult getLoginResult(int code, String msg) {
-            return new LoginResult(code, msg);
+        private PocLoginResult getLoginResult(int code, String msg) {
+            return new PocLoginResult(code, msg);
         }
 
         private boolean isLoginTimeOver() {
