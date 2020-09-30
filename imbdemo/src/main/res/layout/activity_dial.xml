@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DialActivity">
+
+    <EditText
+        android:inputType="phone"
+        android:hint="请输入号码（组或者人）"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/edit_phone_num"/>
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/edit_phone_num"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_person_voice_full"
+            android:onClick="onCallOutClick"
+            android:text="人语音通话"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btn_person_video_full"
+            android:onClick="onCallOutClick"
+            android:text="人视频通话"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btn_group_voice_half"
+            android:onClick="onCallOutClick"
+            android:text="组语音对讲"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btn_group_video_half"
+            android:onClick="onCallOutClick"
+            android:text="组视频对讲"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

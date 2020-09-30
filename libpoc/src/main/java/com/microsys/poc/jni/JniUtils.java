@@ -346,15 +346,21 @@ public final class JniUtils {
     private volatile boolean isResetSampleRate = false;
 
     private void recvGetSamplerate(int sampleRate) {
-        if (sampleRate != sampleRateInHz) {
-            isResetSampleRate = true;
-            //换了采样率  重新开启录音和播放
+        if (sampleRateInHz == 0) {
             sampleRateInHz = sampleRate;
-            stopReadAudio();
-            stopWriteAudio();
             createRecordAndTrack();
-            isResetSampleRate = false;
+        } else {
+            if (sampleRate != sampleRateInHz) {
+                isResetSampleRate = true;
+                //换了采样率  重新开启录音和播放
+                sampleRateInHz = sampleRate;
+                stopReadAudio();
+                stopWriteAudio();
+                createRecordAndTrack();
+                isResetSampleRate = false;
+            }
         }
+
         LogUtil.getInstance().logWithMethod(new Exception(), "recvGetSamplerate" + sampleRateInHz, "xun");
         Log.i("fffffff", "recvGetSamplerate: " + sampleRateInHz);
 
@@ -867,16 +873,17 @@ public final class JniUtils {
         }
         int len = 0;
         if (!isAudioRecordStart) {
-            if (null == audioRecord
-                    || AudioRecord.STATE_UNINITIALIZED == audioRecord
-                    .getState()) {
+            if (null == audioRecord) {
 
+                bufferSizeInBytesIn = AudioRecord.getMinBufferSize(sampleRateInHz,
+                        channelConfig, audioFormat);
                 audioRecord = new AudioRecord(audioSource, sampleRateInHz,
                         channelConfig, audioFormat, bufferSizeInBytesIn);
             }
 
             if (AudioRecord.STATE_UNINITIALIZED == audioRecord
                     .getState()) {
+                Log.e(TAG, "readAudio: AudioRecord.STATE_UNINITIALIZED");
                 return len;
             }
 
@@ -1007,11 +1014,18 @@ public final class JniUtils {
         }
 
         if (!isAudioTrackStart) {
-            if (null == audioTrack
-                    || AudioTrack.STATE_UNINITIALIZED == audioTrack.getState()) {
+            if (null == audioTrack) {
+//                    || AudioTrack.STATE_UNINITIALIZED == audioTrack.getState()) {
+                bufferSizeInBytesOut = AudioTrack.getMinBufferSize(sampleRateInHz,
+                        channelConfig, audioFormat);
                 audioTrack = new AudioTrack(streamType, sampleRateInHz,
                         channelConfig, audioFormat, bufferSizeInBytesOut,
                         AudioTrack.MODE_STREAM);
+            }
+
+            if (AudioTrack.STATE_UNINITIALIZED == audioTrack.getState()) {
+                Log.e(TAG, "writeAudio: AudioTrack.STATE_UNINITIALIZED");
+                return;
             }
 
             audioTrack.play();
@@ -1139,6 +1153,7 @@ public final class JniUtils {
             cameraTowards[1] = 0;
 
             len = dataTmp.length;
+            Log.i(TAG, "readVideo: "+len);
         }
 
         return len;

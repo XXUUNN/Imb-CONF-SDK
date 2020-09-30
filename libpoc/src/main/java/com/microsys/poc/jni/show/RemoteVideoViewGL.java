@@ -28,7 +28,8 @@ public class RemoteVideoViewGL extends RemoteVideoView {
         mWidth = videoWidth;
         mHeight = videoHeight;
         this.screenOrientation = screenOrientation;
-        mVideoFrame = ByteBuffer.allocateDirect((mWidth * mHeight * 3) >> 1 + 1);
+        final int capacity = ((mWidth * mHeight * 3) >> 1) + 1;
+        mVideoFrame = ByteBuffer.allocateDirect(capacity);
     }
 
     @Override

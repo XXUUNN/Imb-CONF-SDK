@@ -134,7 +134,7 @@ public abstract class BaseSipMsgListener implements SipMsgListener {
                 } else if (PocSipMsgDirct.CALLOUT == dirctType) {
                 	//呼出
 					LogUtil.getInstance().logWithMethod(new Exception(), " notifyCallOutSuc", "Zhaolg");
-                    onCallOutSucess();
+                    onCallOutSuccess();
                 }
                 break;
             case ACK:
@@ -187,7 +187,7 @@ public abstract class BaseSipMsgListener implements SipMsgListener {
     /**
      * 呼出成功 进入到通话中
      */
-    protected abstract void onCallOutSucess();
+    protected abstract void onCallOutSuccess();
 
     /**
      * 需要停止振铃

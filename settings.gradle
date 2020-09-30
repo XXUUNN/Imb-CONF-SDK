@@ -1,3 +1,4 @@
 rootProject.name='Imb-CONF-SDK'
-include ':app'
+include ':sdk'
 include ':libpoc'
+include ':imbdemo'

@@ -10,6 +10,14 @@ import android.util.SparseArray;
 public class RemoteViewManager {
     private static SparseArray<RemoteVideoView> remoteVideoViewMap = new SparseArray<>();
 
+    /**
+     * 创建显示远程画面的view
+     * @param uniqueId 从0开始 第二个就是1
+     * @param videoWidth 视频宽
+     * @param videoHeight 视频高
+     * @param screenOrientation 当前发送的流的方向标识
+     * @return 显示视频的view
+     */
     public static RemoteVideoView createInstance(int uniqueId, int videoWidth, int videoHeight, int screenOrientation) {
         RemoteVideoView remoteVideoView = new RemoteVideoViewGL(uniqueId, videoWidth, videoHeight, screenOrientation);
         //检查缓存
