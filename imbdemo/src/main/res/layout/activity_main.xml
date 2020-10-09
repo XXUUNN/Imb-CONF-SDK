@@ -46,6 +46,13 @@
             android:layout_marginTop="10dp"
             android:onClick="onCenterLoginClick"
             android:text="登录智能中心" />
+        <Button
+            android:id="@+id/toMainBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:onClick="onToMainClick"
+            android:text="进入demo" />
 
 
     </LinearLayout>

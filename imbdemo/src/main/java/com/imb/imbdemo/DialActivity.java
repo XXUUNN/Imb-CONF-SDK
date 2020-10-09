@@ -62,7 +62,11 @@ public class DialActivity extends AppCompatActivity {
 
             @Override
             protected void onReceivedHalfVideoCall(String callTel, int callChannel) {
-
+                // TODO: 2020/10/9 需要自己判断是组还是人
+                final CallInfo callInfo = new CallInfo(callTel, PocConstant.CallDirection.DIR_IN,
+                        PocConstant.ContactType.TYPE_GROUP, PocConstant.CallType.CALL_VIDEO_TWO_WAY,
+                        callChannel);
+                toCallUI(callInfo);
             }
 
             @Override
@@ -83,7 +87,11 @@ public class DialActivity extends AppCompatActivity {
 
             @Override
             protected void onReceivedHalfVoiceCall(String callTel, int callChannel) {
-
+                // TODO: 2020/10/9 需要自己判断是组还是人
+                final CallInfo callInfo = new CallInfo(callTel, PocConstant.CallDirection.DIR_IN,
+                        PocConstant.ContactType.TYPE_GROUP, PocConstant.CallType.CALL_VOICE_TWO_WAY,
+                        callChannel);
+                toCallUI(callInfo);
             }
         };
         Poc.registerListener(listener);

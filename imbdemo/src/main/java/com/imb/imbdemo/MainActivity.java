@@ -25,9 +25,9 @@ import com.imb.sdk.data.entity.AppFunctionConfig;
 import com.imb.sdk.data.entity.CenterLoginResult;
 import com.imb.sdk.data.entity.PocLoginResult;
 import com.imb.sdk.login.PocLoginHeartBeatUtils;
-import com.imb.sdk.login.PocLoginUtils;
 import com.imb.sdk.manager.LoginManager;
 import com.imb.sdk.manager.ManagerService;
+import com.microsys.poc.jni.show.MultiVideoShowManager;
 
 import java.util.List;
 
@@ -97,10 +97,10 @@ public class MainActivity extends AppCompatActivity {
             public void deniedForever(List<String> deniedForeverPermissionList) {
 
             }
-        }, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET,Manifest.permission.READ_PHONE_STATE).request();
+        }, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.READ_PHONE_STATE).request();
     }
 
-    private void registerNetReceiver(){
+    private void registerNetReceiver() {
         netBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -128,7 +128,8 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(netBroadcastReceiver, filter);
     }
-    private void unregisterNetReceiver(){
+
+    private void unregisterNetReceiver() {
         if (netBroadcastReceiver != null) {
             unregisterReceiver(netBroadcastReceiver);
             netBroadcastReceiver = null;
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         final AppFunctionConfig.LoginConfig loginConfig = appFunctionConfig.loginConfig;
         loginConfig.setSyncAddressBookConfig(2222, "sftpuser",
                 "sftpuser", "/home/poc_addrlist", getExternalFilesDir("poc").getAbsolutePath());
-        loginConfig.enableSyncAddressBook(true);
+        loginConfig.enableSyncAddressBook(false);
     }
 
     private void setLoginConfig() {
@@ -169,12 +170,15 @@ public class MainActivity extends AppCompatActivity {
 
         UrlManager.setRequestHost(centerHost);
 
+        MultiVideoShowManager.init(com.imb.sdk.data.Constant.REMOTE_VIEW_MAX_COUNT);
+
 //        configInfoTv.setText(
 //                "poc号码：" + pocNum +
 //                        "\n" + "poc密码：" + pocPwd
 //        );
         configInfoTv.setText("centerHost=" + centerHost + " centerName=" + centerName + " centerPwd=" + centerPwd
                 + "\n" + appFunctionConfig.toString());
+
     }
 
     @Override
@@ -209,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
                 isPocLoginOk = false;
                 loginBtn.setText("PoC登录");
                 out("已退出PoC");
+                Constant.myPocNum = null;
             } else {
                 isPocLoginIng = true;
                 loginBtn.setText("PoC登录中。。。");
@@ -229,12 +234,13 @@ public class MainActivity extends AppCompatActivity {
                                     if (pocLoginResult.code == PocConstant.RegisterResult.RESULT_SUCCESS) {
                                         loginBtn.setText("PoC登录成功");
 
+                                        Constant.myPocNum = accountInfo.num;
+
                                         //登上了 到了主界面就开始发送心跳 保持poc在线
                                         startObservePoc();
 
                                         isPocLoginOk = true;
 
-                                        startActivity(new Intent(MainActivity.this,FunctionActivity.class));
                                     } else {
                                         loginBtn.setText("PoC登录失败 " + pocLoginResult.msg);
                                         isPocLoginOk = false;
@@ -278,7 +284,8 @@ public class MainActivity extends AppCompatActivity {
         });
         PocLoginHeartBeatUtils.getInstance().startPocHearBeat();
     }
-    private void stopObservePoc(){
+
+    private void stopObservePoc() {
         PocLoginHeartBeatUtils.getInstance().stopHeartBeat();
     }
 
@@ -287,6 +294,7 @@ public class MainActivity extends AppCompatActivity {
     /*****************Center login start*****************************/
 
     private boolean isCenterLoginOk = false;
+
     public void onCenterLoginClick(View view) {
         LoginManager manager = (LoginManager) ManagerService.getManager(ManagerService.LOGIN_SERVICE);
         if (isCenterLoginOk) {
@@ -370,7 +378,7 @@ public class MainActivity extends AppCompatActivity {
     /*****************Center login end*****************************/
 
     private void out(String s) {
-        Log.i("imbDemo", "out: "+s);
+        Log.i("imbDemo", "out: " + s);
         Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
         outTv.setText(s);
     }
@@ -401,5 +409,13 @@ public class MainActivity extends AppCompatActivity {
 
         unregisterNetReceiver();
         super.onDestroy();
+    }
+
+    public void onToMainClick(View view) {
+        if (isPocLoginOk) {
+            startActivity(new Intent(MainActivity.this, FunctionActivity.class));
+        }else{
+            Toast.makeText(this, "请先登录PoC", Toast.LENGTH_SHORT).show();
+        }
     }
 }

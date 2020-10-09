@@ -10,4 +10,6 @@ public class Constant {
     public static int frameRate = 15;
     public static int bitRate = 1024;
     public static int iFrameTime = 2;
+
+    public static String myPocNum = null;
 }

@@ -3,7 +3,9 @@ package com.imb.imbdemo;
 import android.os.Bundle;
 
 import com.imb.imbdemo.fragment.VideoFullCallFragment;
+import com.imb.imbdemo.fragment.VideoHalfCallFragment;
 import com.imb.imbdemo.fragment.VoiceFullCallFragment;
+import com.imb.imbdemo.fragment.VoiceHalfCallFragment;
 import com.imb.sdk.data.PocConstant;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,7 +37,16 @@ public class CallActivity extends AppCompatActivity {
             final VideoFullCallFragment fragment = new VideoFullCallFragment();
             fragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
+        }else if (info.callType == PocConstant.CallType.CALL_VOICE_TWO_WAY){
+            final VoiceHalfCallFragment fragment = new VoiceHalfCallFragment();
+            fragment.setArguments(getIntent().getExtras());
+            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
+        }else if (info.callType == PocConstant.CallType.CALL_VIDEO_TWO_WAY){
+            final VideoHalfCallFragment fragment = new VideoHalfCallFragment();
+            fragment.setArguments(getIntent().getExtras());
+            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
         }
+
     }
 
     private void setCallTitle() {

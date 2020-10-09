@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/call_layout"
     android:layout_height="match_parent">
 
     <RelativeLayout
@@ -18,9 +20,21 @@
                 android:layout_height="wrap_content" />
         </ScrollView>
 
+        <EditText
+            android:inputType="phone"
+            android:id="@+id/edit_force"
+            android:hint="请输入号码 强制强权或者放权(自己是发起者)"
+            android:layout_marginRight="100dp"
+            android:layout_above="@+id/btn_tbcp"
+            android:layout_width="match_parent"
+            android:imeOptions="actionGo"
+            android:singleLine="true"
+            android:textSize="12sp"
+            android:layout_height="wrap_content"/>
+
         <Button
             android:text="挂断"
-            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@+id/btn_tbcp"
             android:layout_alignParentBottom="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,5 +49,4 @@
 
     </RelativeLayout>
 
-    <d
 </FrameLayout>
