@@ -27,7 +27,6 @@ import com.imb.sdk.data.entity.PocLoginResult;
 import com.imb.sdk.login.PocLoginHeartBeatUtils;
 import com.imb.sdk.manager.LoginManager;
 import com.imb.sdk.manager.ManagerService;
-import com.microsys.poc.jni.show.MultiVideoShowManager;
 
 import java.util.List;
 
@@ -169,8 +168,6 @@ public class MainActivity extends AppCompatActivity {
         centerHost = configSp.getString(Sp.CENTER_HOST, null);
 
         UrlManager.setRequestHost(centerHost);
-
-        MultiVideoShowManager.init(com.imb.sdk.data.Constant.REMOTE_VIEW_MAX_COUNT);
 
 //        configInfoTv.setText(
 //                "poc号码：" + pocNum +

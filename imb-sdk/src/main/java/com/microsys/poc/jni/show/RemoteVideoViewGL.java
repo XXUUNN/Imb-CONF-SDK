@@ -33,7 +33,8 @@ public class RemoteVideoViewGL extends RemoteVideoView {
     }
 
     @Override
-    public View startPreview(Context context, int previewMaxW, int previewMaxH, IRemoteDrawCalc calc) {
+    public View startPreview(Context context, int previewMaxW, int previewMaxH, IRemoteDrawCalc calc,
+                             TriangleVerticesCallback callback) {
         synchronized (this) {
             mContext = context;
             if (mContext != null) {

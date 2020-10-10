@@ -20,6 +20,13 @@ import com.microsys.poc.jni.show.RemoteVideoViewGL;
 public class VideoFullCallFragment extends BaseFullCallFragment {
 
 
+    private static final float[] TRIANGLE_VERTICES = new float[]{
+            1, -1, 0, 1, 0,
+            1, 1, 0, 0, 0,
+            -1, 1, 0, 0, 1,
+            -1, -1, 0, 1, 1
+    };;
+
     @Override
     protected int getOnCallResId() {
         return R.layout.layout_video_on_call;
@@ -54,11 +61,27 @@ public class VideoFullCallFragment extends BaseFullCallFragment {
                         .startPreview(getActivity(), width, height, new IRemoteDrawCalc() {
                             @Override
                             public void calc(Params params) {
+                                //计算画视频的宽高和位置
                                 params.x = params.y = 0;
                                 params.w = width;
                                 params.h = height;
                             }
-                        });
+                        },null);
+//                View remotePreview = remoteView
+//                        .startPreview(getActivity(), width, height, new IRemoteDrawCalc() {
+//                            @Override
+//                            public void calc(Params params) {
+//                                params.x = params.y = 0;
+//                                params.w = width;
+//                                params.h = height;
+//                            }
+//                        }, new TriangleVerticesCallback() {
+//                            @Override
+//                            public void callback(FloatBuffer mTriangleVertices, int screenDir, int direction) {
+//                                //不同的矩阵不同的显示
+//                                mTriangleVertices.put(TRIANGLE_VERTICES).position(0);
+//                            }
+//                        });
                 frameLayout.addView(remotePreview, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
                 onCallView.findViewById(R.id.media_view).bringToFront();

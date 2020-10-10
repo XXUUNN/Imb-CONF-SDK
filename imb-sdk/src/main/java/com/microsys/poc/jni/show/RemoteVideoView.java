@@ -5,7 +5,7 @@ import android.view.View;
 
 public abstract class RemoteVideoView {
 
-    public abstract View startPreview(Context context, int previewMaxW, int previewMaxH, IRemoteDrawCalc iRemoteDrawCalc);
+    public abstract View startPreview(Context context, int previewMaxW, int previewMaxH, IRemoteDrawCalc iRemoteDrawCalc,TriangleVerticesCallback callback);
 
     public abstract int showVideo(byte[] data, int len, int width, int height, int direction);
 

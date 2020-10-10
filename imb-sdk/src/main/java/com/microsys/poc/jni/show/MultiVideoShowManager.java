@@ -13,6 +13,11 @@ import java.util.List;
 public class MultiVideoShowManager {
     public static final int DEFAULT_ID = IdGenerator.DEFAULT_ID;
     private static SparseArray<VideoShowManager> showManagerMap = new SparseArray<>();
+    private static int maxCount;
+
+    public static int getMaxCount() {
+        return maxCount;
+    }
 
     /**
      * 初始化
@@ -20,20 +25,21 @@ public class MultiVideoShowManager {
      * @param remoteViewMaxCount 最大的个数
      */
     public static void init(int remoteViewMaxCount) {
+        maxCount = remoteViewMaxCount;
         IdGenerator.generateIds(remoteViewMaxCount);
         IdTranslator.init(remoteViewMaxCount);
     }
 
-    public static VideoShowManager get(int id) {
+    public synchronized static VideoShowManager get(int id) {
         return showManagerMap.get(id);
     }
 
-    public static void start() {
+    public synchronized static void start() {
         int id = DEFAULT_ID;
         start(id);
     }
 
-    public static void start(int id) {
+    public synchronized static void start(int id) {
         VideoShowManager manager = showManagerMap.get(id);
         if (manager != null) {
             return;
@@ -43,7 +49,7 @@ public class MultiVideoShowManager {
         videoShowManager.start();
     }
 
-    public static void startAll() {
+    public synchronized static void startAll() {
         //遍历id
         List<Integer> idList = IdGenerator.getIdList();
         for (int id : idList) {
@@ -51,7 +57,7 @@ public class MultiVideoShowManager {
         }
     }
 
-    public static void stop(int id) {
+    public synchronized static void stop(int id) {
         VideoShowManager videoShowManager = showManagerMap.get(id);
         if (videoShowManager != null) {
             videoShowManager.stop();
@@ -59,7 +65,7 @@ public class MultiVideoShowManager {
         }
     }
 
-    public static void stopAll() {
+    public synchronized static void stopAll() {
         int size = showManagerMap.size();
         for (int i = 0; i < size; i++) {
             VideoShowManager videoShowManager = showManagerMap.get(showManagerMap.keyAt(i));
@@ -68,7 +74,7 @@ public class MultiVideoShowManager {
         showManagerMap.clear();
     }
 
-    public static void clearAllVideo() {
+    public synchronized static void clearAllVideo() {
         int size = showManagerMap.size();
         for (int i = 0; i < size; i++) {
             VideoShowManager videoShowManager = showManagerMap.get(showManagerMap.keyAt(i));

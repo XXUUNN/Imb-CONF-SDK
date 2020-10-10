@@ -12,10 +12,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="imb_remote_view_max_count"
+            android:value="4" />
+
         <activity
-            android:hardwareAccelerated="true"
             android:name=".CallActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:hardwareAccelerated="true"
             android:label="@string/title_activity_call"
             android:theme="@style/FullscreenTheme"></activity>
         <activity android:name=".DialActivity" />

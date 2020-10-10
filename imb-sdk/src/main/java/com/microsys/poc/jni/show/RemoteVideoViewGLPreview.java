@@ -278,6 +278,8 @@ class RemoteVideoViewGLPreview extends GLSurfaceView implements GLSurfaceView.Re
 
     private IRemoteDrawCalc.Params drawParams;
     private IRemoteDrawCalc remoteDrawCalc;
+    private TriangleVerticesCallback callback;
+
 
     @SuppressWarnings("deprecation")
     public RemoteVideoViewGLPreview(Context context, ByteBuffer buffer,
@@ -311,6 +313,10 @@ class RemoteVideoViewGLPreview extends GLSurfaceView implements GLSurfaceView.Re
 
     public void setDrawCalc(IRemoteDrawCalc calc) {
         remoteDrawCalc = calc;
+    }
+
+    public void setTriangleVerticesCallback(TriangleVerticesCallback callback){
+        this.callback = callback;
     }
 
     public void setBuffer(ByteBuffer buffer, int bufferWidth, int bufferHeight, int direction) {
@@ -350,26 +356,10 @@ class RemoteVideoViewGLPreview extends GLSurfaceView implements GLSurfaceView.Re
         super.surfaceDestroyed(holder);
     }
 
-//    IRemoteDrawCalc.Params lockedParams;
-
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             if (remoteDrawCalc != null) {
-//                if (lockedOrientation>-1) {
-//                    //如果锁定了方向 就用锁定的方向计算 不改变画的参数 保持画面不变化
-//                    IRemoteDrawCalc.Params params = new IRemoteDrawCalc.Params(drawParams.surfaceW,drawParams.surfaceH,
-//                            drawParams.x,drawParams.y,drawParams.w,drawParams.h,
-//                            drawParams.getVideoW(),drawParams.getVideoH(),drawParams.getVideoDir(),
-//                            lockedOrientation);
-//                    Log.i(TAG, "calc handleMessage: 使用了 之前 的方向 "+id);
-//                    remoteDrawCalc.calc(params);
-//                    lockedParams = params;
-//                    //在对面正确的锁屏方向流传过来前的这段时间
-//                }else{
-//                    remoteDrawCalc.calc(drawParams);
-//                    Log.i(TAG, "calc handleMessage: 使用了 当前 的方向 "+id);
-//                }
                 remoteDrawCalc.calc(drawParams);
             } else {
                 Log.e(TAG, "handleMessage: 未实现计算尺寸的方法 remoteViewId=" + id);
@@ -437,6 +427,10 @@ class RemoteVideoViewGLPreview extends GLSurfaceView implements GLSurfaceView.Re
             } else {
                 //否则就先使用之前的方向保持画面不变化
             }
+        }
+        if (callback != null) {
+            callback.callback(mTriangleVertices,screenDir,direction);
+            return;
         }
         switch (direction) {
             case VideoDirection.ANDROID_BACK_PORTRAIT:

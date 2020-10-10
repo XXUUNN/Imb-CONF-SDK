@@ -1210,11 +1210,6 @@ public final class JniUtils {
         }
     }
 
-    private AvcDecoderAsync decoder = null;
-    private AvcDecoderAsync decoder2 = null;
-    private AvcDecoderAsync decoder3 = null;
-    private AvcDecoderAsync decoder4 = null;
-
     // 是否第一次进入
     private boolean isFirstTime = true;
     private long firstStampTime = 0;
@@ -1285,16 +1280,7 @@ public final class JniUtils {
 
         if (null != RemoteViewManager.adaptiveGet(id) && null != data && len > 0) {
             if (AvcDecoderAsync.deCodecMode == 1) {
-                AvcDecoderAsync decoder = null;
-                if (id == 0) {
-                    decoder = JniUtils.this.decoder;
-                } else if (id == 1) {
-                    decoder = JniUtils.this.decoder2;
-                } else if (id == 2) {
-                    decoder = JniUtils.this.decoder3;
-                } else if (id == 3) {
-                    decoder = JniUtils.this.decoder4;
-                }
+                AvcDecoderAsync decoder = decoder = getDecoder(id);
                 if (decoder != null) {
                     decoder.asyncInput(data, len, width, height, stampTime, cameraTowards);
                 }
@@ -1337,6 +1323,70 @@ public final class JniUtils {
         return (long) (132 + (stampTime - firstStampTime) * 1000000 / 90000);
     }
 
+    private final List<AvcDecoderAsync> decoderList = new ArrayList<>();
+
+    private AvcDecoderAsync getDecoder(int id) {
+        synchronized (decoderList) {
+            if (decoderList.size() > id) {
+                return decoderList.get(id);
+            }
+        }
+        return null;
+    }
+
+    private void startMultiAvcDecoders(int count) {
+        synchronized (decoderList) {
+            for (int i = 0; i < count; i++) {
+                AvcDecoderAsync avcDecoderAsync = startAvcDecoder(i);
+                decoderList.add(avcDecoderAsync);
+            }
+        }
+    }
+
+    private void stopMultiAvcDecoders() {
+        synchronized (decoderList) {
+            for (AvcDecoderAsync avcDecoderAsync : decoderList) {
+                stopAvcDecoder(avcDecoderAsync);
+            }
+            decoderList.clear();
+        }
+    }
+
+    private void startOneAvcDecoder() {
+        synchronized (decoderList) {
+            decoderList.clear();
+            AvcDecoderAsync decoderAsync = startAvcDecoder(MultiVideoShowManager.DEFAULT_ID);
+            decoderList.add(decoderAsync);
+        }
+    }
+
+    private void stopOneAvcDecoder() {
+        synchronized (decoderList) {
+            for (AvcDecoderAsync avcDecoderAsync : decoderList) {
+                stopAvcDecoder(avcDecoderAsync);
+            }
+            decoderList.clear();
+        }
+    }
+
+    private AvcDecoderAsync startAvcDecoder(final int id) {
+        AvcDecoderAsync decoder = AvcDecoderAsync.createDecoder(id, new AvcDecoderAsync.Callback() {
+            @Override
+            public void callback(VideoRecvData recvData) {
+                try {
+                    MultiVideoShowManager.get(id).putVideoData(recvData);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        return decoder;
+    }
+
+    private void stopAvcDecoder(AvcDecoderAsync decoder) {
+        destroyAvcDecoder(decoder);
+    }
+
     /**
      * 显示视频流的准备函数
      */
@@ -1346,58 +1396,9 @@ public final class JniUtils {
             // 实例化解码器
 
             if (isMultiStreams) {
-                // TODO: 2020/7/24 硬解码需要改成 ssrc对应的
-                decoder = AvcDecoderAsync.createDecoder(0, new AvcDecoderAsync.Callback() {
-                    @Override
-                    public void callback(VideoRecvData recvData) {
-                        try {
-                            MultiVideoShowManager.get(0).putVideoData(recvData);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                decoder2 = AvcDecoderAsync.createDecoder(1, new AvcDecoderAsync.Callback() {
-                    @Override
-                    public void callback(VideoRecvData recvData) {
-                        try {
-                            MultiVideoShowManager.get(1).putVideoData(recvData);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                decoder3 = AvcDecoderAsync.createDecoder(2, new AvcDecoderAsync.Callback() {
-                    @Override
-                    public void callback(VideoRecvData recvData) {
-                        try {
-                            MultiVideoShowManager.get(2).putVideoData(recvData);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                decoder4 = AvcDecoderAsync.createDecoder(3, new AvcDecoderAsync.Callback() {
-                    @Override
-                    public void callback(VideoRecvData recvData) {
-                        try {
-                            MultiVideoShowManager.get(3).putVideoData(recvData);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                startMultiAvcDecoders(MultiVideoShowManager.getMaxCount());
             } else {
-                decoder = AvcDecoderAsync.createDecoder(0, new AvcDecoderAsync.Callback() {
-                    @Override
-                    public void callback(VideoRecvData recvData) {
-                        try {
-                            MultiVideoShowManager.get(0).putVideoData(recvData);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                startOneAvcDecoder();
             }
         }
 
@@ -1413,17 +1414,7 @@ public final class JniUtils {
      */
     public void prepareStopVideoShow() {
         if (AvcDecoderAsync.deCodecMode == 1) {
-            destroyAvcDecoder(decoder);
-            decoder = null;
-
-            destroyAvcDecoder(decoder2);
-            decoder2 = null;
-
-            destroyAvcDecoder(decoder3);
-            decoder3 = null;
-
-            destroyAvcDecoder(decoder4);
-            decoder4 = null;
+            stopMultiAvcDecoders();
         }
 
         MultiVideoShowManager.stopAll();

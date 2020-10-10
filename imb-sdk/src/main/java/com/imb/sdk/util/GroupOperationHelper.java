@@ -1,4 +1,4 @@
-package com.imb.sdk;
+package com.imb.sdk.util;
 
 import android.text.TextUtils;
 

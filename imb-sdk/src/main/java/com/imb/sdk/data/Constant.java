@@ -38,6 +38,7 @@ public class Constant {
      */
     public static final int DEFAULT_LOGIN_TIME_OUT = 8 * 1000;
 
+    public static final String META_REMOTE_VIEW_MAX_COUNT = "imb_remote_view_max_count";
     /**
      * 最新的可能有四个流
      */

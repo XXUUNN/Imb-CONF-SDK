@@ -21,7 +21,7 @@ public class IdTranslator {
         relationshipMap = new HashMap<>(maxStreamsCount);
     }
 
-    public static void updateRelationship(ArrayList<Integer> relationship) {
+    public synchronized static void updateRelationship(ArrayList<Integer> relationship) {
         if (relationshipMap == null) {
             throw new RuntimeException("init() should be called first");
         }
@@ -56,7 +56,7 @@ public class IdTranslator {
         return id < 0 ? false : true;
     }
 
-    public static int toId(Integer ssrc) {
+    public synchronized static int toId(Integer ssrc) {
         if (relationshipMap == null) {
             throw new RuntimeException("init() should be called first");
         }
