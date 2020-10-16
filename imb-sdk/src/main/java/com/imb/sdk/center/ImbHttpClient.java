@@ -92,13 +92,13 @@ public class ImbHttpClient {
     /**
      * 登入
      */
-    public static void login(String account, String pwd, Callback<LoginResponse> callback) {
+    public static void login(String account, String pwd, String meetingNum, Callback<LoginResponse> callback) {
 
         String url = UrlManager.getLoginPath();
 
         String date = TimeUtil.formatMillisToGMT();
 
-        url = url + "/" + account;
+        url = url + "/" + account + "?meetingNo=" + meetingNum;
         //密码加密
         String sign = null;
         try {
@@ -234,9 +234,9 @@ public class ImbHttpClient {
     /**
      * 重设密码
      */
-    public static void resetPwd(String userName, String pwd, String mobileNum, String authCode,
+    public static void resetPwd(String meetingNum, String userName, String pwd, String mobileNum, String authCode,
                                 Callback<ResetPwdResponse> callback) {
-        String url = UrlManager.getResetPwd();
+        String url = UrlManager.getResetPwd() + "?meetingNo=" + meetingNum;
 
         OkHttpClient okHttpClient = OKHttpUtil.getInstance();
         MultipartBody body = new MultipartBody.Builder()
@@ -317,8 +317,8 @@ public class ImbHttpClient {
         okHttpClient.newCall(request).enqueue(callback);
     }
 
-    public static void getUserMobileByUserName(String userName, Callback<UserMobileResponse> callback) {
-        String url = UrlManager.getGetMobile() + "/" + userName;
+    public static void getUserMobileByUserName(String userName, String meetingNum, Callback<UserMobileResponse> callback) {
+        String url = UrlManager.getGetMobile() + "/" + userName + "?meetingNo=" + meetingNum;
 
         OkHttpClient okHttpClient = OKHttpUtil.getInstance();
         // 02.请求体

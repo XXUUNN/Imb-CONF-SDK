@@ -49,6 +49,24 @@ public class LoginAccountInfo extends BaseResponse {
         private String fileName;
         private String mobile;
         private String email;
+        private String companyName;
+        private String meetingNo;
+
+        public String getCompanyName() {
+            return companyName;
+        }
+
+        public void setCompanyName(String companyName) {
+            this.companyName = companyName;
+        }
+
+        public String getMeetingNo() {
+            return meetingNo;
+        }
+
+        public void setMeetingNo(String meetingNo) {
+            this.meetingNo = meetingNo;
+        }
 
         /**
          * 最新的会议的

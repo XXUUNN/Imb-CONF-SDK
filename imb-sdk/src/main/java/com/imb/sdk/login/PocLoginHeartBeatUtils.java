@@ -50,7 +50,7 @@ public class PocLoginHeartBeatUtils extends PocRegisterListener {
 
     private Thread heartBeatTask;
 
-    public void startPocHearBeat() {
+    public synchronized void startPocHearBeat() {
         Log.i("loginHeartBeat", "startHeartBeat: isRunning=" + isRunning);
         if (isRunning) {
             return;
@@ -60,7 +60,7 @@ public class PocLoginHeartBeatUtils extends PocRegisterListener {
         run();
     }
 
-    public void stopHeartBeat() {
+    public synchronized void stopHeartBeat() {
         Log.i("loginHeartBeat", "stopHeartBeat: ");
         isRunning = false;
         Poc.unregisterListener(this);

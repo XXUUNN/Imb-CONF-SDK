@@ -37,11 +37,13 @@ dependencies {
 }
 
 task aar(type: org.gradle.api.tasks.Copy){
+    group 'aar'
+    description('生成aar包')
     from 'build/outputs/aar'
     into 'out'
     include('imb-sdk-release.aar')
     rename { String fileName ->
         fileName =  "imb-sdk-${android.defaultConfig.versionName}.aar"
     }
+    dependsOn(build)
 }
-aar.dependsOn(build)

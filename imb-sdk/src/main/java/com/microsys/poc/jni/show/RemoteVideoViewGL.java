@@ -98,6 +98,12 @@ public class RemoteVideoViewGL extends RemoteVideoView {
                 mVideoFrame = ByteBuffer.allocateDirect(len + 1);
                 mPreview.setBuffer(mVideoFrame, mWidth, mHeight, videoDir);
             }
+            if (width == 1) {
+                //说明是隐藏View时 强行放的1大小的数据 不丢这一数据
+            }else{
+                //现在解码出来的数据有一帧是方向不对应的 直接丢掉
+                return;
+            }
             return;
         }
 

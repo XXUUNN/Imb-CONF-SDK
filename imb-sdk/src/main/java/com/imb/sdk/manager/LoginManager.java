@@ -24,8 +24,8 @@ public class LoginManager extends BaseManager {
         PocLoginUtils.getAndroidId(context);
     }
 
-    public void loginCenter(String name, String pwd, CenterLoginUtils.LoginCenterCallback callback) {
-        CenterLoginUtils.loginCenter(name, pwd, callback);
+    public void loginCenter(String meetingNum, String name, String pwd, CenterLoginUtils.LoginCenterCallback callback) {
+        CenterLoginUtils.loginCenter(meetingNum, name, pwd, callback);
     }
 
     public void loginCenterByToken(String token, CenterLoginUtils.LoginCenterCallback callback) {
@@ -39,11 +39,12 @@ public class LoginManager extends BaseManager {
     /**
      * 超时时间内阻塞的返回结果 需要在子线程执行
      * 可以配置是否同步通讯录
+     *
+     * @param appFunctionConfig 配置
+     * @param accountInfo       账户信息
+     * @return 登录结果
      * @see com.imb.sdk.data.entity.AppFunctionConfig.LoginConfig#enableSyncAddressBook(boolean)
      * @see com.imb.sdk.data.entity.AppFunctionConfig.LoginConfig#loginTimeOut
-     * @param appFunctionConfig 配置
-     * @param accountInfo 账户信息
-     * @return 登录结果
      */
     public PocLoginResult loginPoc(AppFunctionConfig appFunctionConfig, AccountInfo accountInfo) {
         return PocLoginUtils.login(appFunctionConfig, accountInfo);
@@ -52,14 +53,14 @@ public class LoginManager extends BaseManager {
     /**
      * 在poc登录过程中可以停止登录 {@link #loginPoc(AppFunctionConfig, AccountInfo)}立即返回
      */
-    public void stopLoginPoc(){
+    public void stopLoginPoc() {
         PocLoginUtils.stopLogin();
     }
 
     /**
      * 登出poc
      */
-    public void logoutPoc(){
+    public void logoutPoc() {
         PocLoginUtils.logout();
     }
 }

@@ -13,6 +13,7 @@ public class ConfigEditActivity extends AppCompatActivity {
     private EditText pocNumEdit;
     private EditText pocPwdEdit;
 
+    private EditText centerMeetingNumEdit;
     private EditText centerNameEdit;
     private EditText centerPwdEdit;
     private EditText centerHostEdit;
@@ -26,6 +27,7 @@ public class ConfigEditActivity extends AppCompatActivity {
         final String pocNum = sp.getString(Sp.POC_NUM, null);
         final String pocPwd = sp.getString(Sp.POC_PWD, null);
 
+        final String centerMeetingNum = sp.getString(Sp.CENTER_MEETING_NUM, null);
         final String centerName = sp.getString(Sp.CENTER_NAME, null);
         final String centerPwd = sp.getString(Sp.CENTER_PWD, null);
         final String centerHost = sp.getString(Sp.CENTER_HOST, null);
@@ -33,6 +35,7 @@ public class ConfigEditActivity extends AppCompatActivity {
         pocNumEdit = (EditText) findViewById(R.id.edit_num);
         pocPwdEdit = (EditText) findViewById(R.id.edit_pwd);
 
+        centerMeetingNumEdit = (EditText) findViewById(R.id.edit_center_meeting_num);
         centerNameEdit = (EditText) findViewById(R.id.edit_center_name);
         centerPwdEdit = (EditText) findViewById(R.id.edit_center_pwd);
         centerHostEdit = (EditText) findViewById(R.id.edit_center_host);
@@ -40,6 +43,7 @@ public class ConfigEditActivity extends AppCompatActivity {
         pocNumEdit.setText(pocNum);
         pocPwdEdit.setText(pocPwd);
 
+        centerMeetingNumEdit.setText(centerMeetingNum);
         centerNameEdit.setText(centerName);
         centerPwdEdit.setText(centerPwd);
         centerHostEdit.setText(centerHost);
@@ -52,9 +56,11 @@ public class ConfigEditActivity extends AppCompatActivity {
         sp.edit().putString(Sp.POC_NUM,num).commit();
         sp.edit().putString(Sp.POC_PWD,pwd).commit();
 
+        final String centerMeetingNum = centerMeetingNumEdit.getText().toString().trim();
         final String centerName = centerNameEdit.getText().toString().trim();
         final String centerPwd = centerPwdEdit.getText().toString().trim();
         final String centerHost = centerHostEdit.getText().toString().trim();
+        sp.edit().putString(Sp.CENTER_MEETING_NUM,centerMeetingNum).commit();
         sp.edit().putString(Sp.CENTER_NAME,centerName).commit();
         sp.edit().putString(Sp.CENTER_PWD,centerPwd).commit();
         sp.edit().putString(Sp.CENTER_HOST,centerHost).commit();

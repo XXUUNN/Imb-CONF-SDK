@@ -27,8 +27,8 @@ public class CenterLoginUtils {
      * @param pwd      用户密码
      * @param callback 异步回调
      */
-    public static void loginCenter(String name, String pwd, final LoginCenterCallback callback) {
-        ImbHttpClient.login(name, pwd, new ImbHttpClient.Callback<LoginResponse>(LoginResponse.class) {
+    public static void loginCenter(String meetingNum,String name, String pwd, final LoginCenterCallback callback) {
+        ImbHttpClient.login(name, pwd, meetingNum,new ImbHttpClient.Callback<LoginResponse>(LoginResponse.class) {
             @Override
             public void onSuccess(LoginResponse result) {
                 LoginResponse.DataBean data = result.getData();

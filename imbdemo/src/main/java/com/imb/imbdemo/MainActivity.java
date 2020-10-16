@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private String pocNum;
     private String pocPwd;
 
+    private String centerMeetingNum;
     private String centerName;
     private String centerPwd;
     private String centerHost;
@@ -163,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
         accountInfo.num = pocNum;
         accountInfo.password = pocPwd;
 
+        centerMeetingNum = configSp.getString(Sp.CENTER_MEETING_NUM, null);
         centerName = configSp.getString(Sp.CENTER_NAME, null);
         centerPwd = configSp.getString(Sp.CENTER_PWD, null);
         centerHost = configSp.getString(Sp.CENTER_HOST, null);
@@ -173,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
 //                "poc号码：" + pocNum +
 //                        "\n" + "poc密码：" + pocPwd
 //        );
-        configInfoTv.setText("centerHost=" + centerHost + " centerName=" + centerName + " centerPwd=" + centerPwd
+        configInfoTv.setText("centerHost=" + centerHost + " centerMeetingNum=" + centerMeetingNum+ " centerName=" + centerName + " centerPwd=" + centerPwd
                 + "\n" + appFunctionConfig.toString());
 
     }
@@ -302,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
             out("已退出center");
             loginCenterBtn.setText("登录智能中心");
         } else {
-            manager.loginCenter(centerName, centerPwd, new CenterLoginUtils.LoginCenterCallback() {
+            manager.loginCenter(centerMeetingNum,centerName, centerPwd, new CenterLoginUtils.LoginCenterCallback() {
                 @Override
                 public void onSuccess(CenterLoginResult result) {
                     out(result.toString());

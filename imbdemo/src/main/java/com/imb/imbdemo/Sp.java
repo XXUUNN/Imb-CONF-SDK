@@ -12,6 +12,7 @@ public class Sp {
     public static final String POC_NUM = "poc_num";
     public static final String POC_PWD = "poc_pwd";
 
+    public static final String CENTER_MEETING_NUM = "center_meeting_num";
     public static final String CENTER_NAME = "center_name";
     public static final String CENTER_PWD = "center_pwd";
     public static final String CENTER_HOST = "center_host";
