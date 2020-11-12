@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent"
+    tools:context=".GroupActivity">
+
+    <Button
+        android:text="返回上一级"
+        android:onClick="onBackClick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/back"/>
+
+    <Button
+        android:text="添加工作组"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onAddGroupClick"/>
+
+    <Button
+        android:text="组添加成员|更新组名"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onEditGroupClick"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="长按可删除工作组或者联系人(只有自己是创建者才有权限)"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:id="@+id/recyclerview"
+        android:layout_height="match_parent"/>
+
+</LinearLayout>

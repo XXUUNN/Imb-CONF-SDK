@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import com.imb.sdk.manager.CallManager;
 import com.imb.sdk.manager.ManagerService;
@@ -56,5 +57,25 @@ public class FunctionActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         PermissionUtils.onPermissionCallback(2,requestCode,permissions,grantResults);
+    }
+
+    public void onBookClick(View view) {
+        if (MainActivity.isHasBook) {
+            if (MainActivity.depts.isEmpty()){
+                Toast.makeText(this, "通讯录数据不正确", Toast.LENGTH_SHORT).show();
+            }else{
+                startActivity(new Intent(FunctionActivity.this,AddressBookActivity.class));
+            }
+        }else{
+            Toast.makeText(this, "未开启通讯录", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void onGroupClick(View view) {
+        if (MainActivity.isHasBook) {
+            startActivity(new Intent(this,GroupActivity.class));
+        }else{
+            Toast.makeText(this, "未开启通讯录", Toast.LENGTH_SHORT).show();
+        }
     }
 }

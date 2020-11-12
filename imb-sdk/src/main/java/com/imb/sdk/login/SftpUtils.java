@@ -94,9 +94,10 @@ class SftpUtils {
         task = executorService.submit(new Runnable() {
             @Override
             public void run() {
-                if (null == sftp) {
+                if (null == sftp || !sftp.isConnected()) {
                     isToConnect = true;
                     connect();
+                    isToConnect = false;
                 }
             }
         });
@@ -226,7 +227,7 @@ class SftpUtils {
         }
     }
 
-    protected void closeSftp() {
+    private void closeSftp() {
         if (sftp != null) {
             sftp.disconnect();
             sftp.exit();

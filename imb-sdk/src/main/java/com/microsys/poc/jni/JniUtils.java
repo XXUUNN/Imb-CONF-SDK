@@ -1280,7 +1280,7 @@ public final class JniUtils {
 
         if (null != RemoteViewManager.adaptiveGet(id) && null != data && len > 0) {
             if (AvcDecoderAsync.deCodecMode == 1) {
-                AvcDecoderAsync decoder = decoder = getDecoder(id);
+                AvcDecoderAsync decoder = getDecoder(id);
                 if (decoder != null) {
                     decoder.asyncInput(data, len, width, height, stampTime, cameraTowards);
                 }
@@ -1993,6 +1993,12 @@ public final class JniUtils {
     public native int YUVscale(byte[] inData, int inW, int inH, byte[] outData, int outW, int outH);
 
     public native void YuvConcatLR(byte[] yuvL, byte[] yuvR, int w, int h, byte[] data);
+
+    /**
+     * 发一个空的sip info消息到服务器
+     * 功能：从无网络到有网络发送一个这个消息更新服务器的本设备的ip 避免收不到服务器信息
+     */
+    public native int PocSendSipInfoNULL();
 
     /**
      * 去掉各种监听

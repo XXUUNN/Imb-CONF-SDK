@@ -10,12 +10,16 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.imb.imbdemo.entity.ContactEntity;
+import com.imb.imbdemo.entity.ContactGroupEntity;
+import com.imb.imbdemo.entity.DepartmentEntity;
 import com.imb.sdk.center.CenterLoginUtils;
 import com.imb.sdk.center.SyncAccountStateUtils;
 import com.imb.sdk.center.UrlManager;
@@ -28,6 +32,7 @@ import com.imb.sdk.login.PocLoginHeartBeatUtils;
 import com.imb.sdk.manager.LoginManager;
 import com.imb.sdk.manager.ManagerService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -38,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences configSp;
     private String pocNum;
     private String pocPwd;
+    private String pocServer;
 
     private String centerMeetingNum;
     private String centerName;
@@ -53,6 +59,13 @@ public class MainActivity extends AppCompatActivity {
     private TextView outTv;
 
     private BroadcastReceiver netBroadcastReceiver;
+
+    public static boolean isHasBook = false;
+
+    public static final List<ContactEntity> contacts = new ArrayList<>();
+    public static final List<ContactGroupEntity> groups = new ArrayList<>();
+    public static final List<DepartmentEntity> depts = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         Constant.bitRate = appFunctionConfig.videoConfig.bitRate;
         Constant.iFrameTime = appFunctionConfig.videoConfig.iFrameTime;
 
-        setLoginConfig();
+        configSp = Sp.getSp(this);
 
         initConfig();
 
@@ -90,14 +103,15 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void denied(List<String> deniedPermissionList) {
-
+                Toast.makeText(MainActivity.this, "请允许权限", Toast.LENGTH_SHORT).show();
+                finish();
             }
 
             @Override
             public void deniedForever(List<String> deniedForeverPermissionList) {
 
             }
-        }, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.READ_PHONE_STATE).request();
+        }, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE).request();
     }
 
     private void registerNetReceiver() {
@@ -116,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
                     //更新网络变化 使心跳立即回调
                     PocLoginHeartBeatUtils.getInstance().updateNetConnection(true);
+                    PocLoginHeartBeatUtils.getInstance().sendMsgToServerWhenNetOk();
                 } else {
                     //更新网络变化 使心跳立即回调
                     PocLoginHeartBeatUtils.getInstance().updateNetConnection(false);
@@ -140,12 +155,14 @@ public class MainActivity extends AppCompatActivity {
         final AppFunctionConfig.LoginConfig loginConfig = appFunctionConfig.loginConfig;
         loginConfig.setSyncAddressBookConfig(2222, "sftpuser",
                 "sftpuser", "/home/poc_addrlist", getExternalFilesDir("poc").getAbsolutePath());
-        loginConfig.enableSyncAddressBook(false);
+        loginConfig.enableSyncAddressBook(true);
+        isHasBook = true;
     }
 
     private void setLoginConfig() {
         final AppFunctionConfig.LoginConfig loginConfig = appFunctionConfig.loginConfig;
-        loginConfig.serverIp = "47.111.29.93";
+        pocServer = configSp.getString(Sp.POC_SERVER, null);
+        loginConfig.serverIp = pocServer;
         loginConfig.serverPort = 6689;
         loginConfig.localIp = NetUtils.getLocalIp(this);
         loginConfig.versionName = "1.0.0";
@@ -157,7 +174,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initConfig() {
-        configSp = Sp.getSp(this);
+        setLoginConfig();
+
         pocNum = configSp.getString(Sp.POC_NUM, null);
         pocPwd = configSp.getString(Sp.POC_PWD, null);
 
@@ -169,13 +187,15 @@ public class MainActivity extends AppCompatActivity {
         centerPwd = configSp.getString(Sp.CENTER_PWD, null);
         centerHost = configSp.getString(Sp.CENTER_HOST, null);
 
-        UrlManager.setRequestHost(centerHost);
+        if (!TextUtils.isEmpty(centerHost)) {
+            UrlManager.setRequestHost(centerHost);
+        }
 
 //        configInfoTv.setText(
 //                "poc号码：" + pocNum +
 //                        "\n" + "poc密码：" + pocPwd
 //        );
-        configInfoTv.setText("centerHost=" + centerHost + " centerMeetingNum=" + centerMeetingNum+ " centerName=" + centerName + " centerPwd=" + centerPwd
+        configInfoTv.setText("centerHost=" + centerHost + " centerMeetingNum=" + centerMeetingNum + " centerName=" + centerName + " centerPwd=" + centerPwd
                 + "\n" + appFunctionConfig.toString());
 
     }
@@ -239,6 +259,17 @@ public class MainActivity extends AppCompatActivity {
                                         startObservePoc();
 
                                         isPocLoginOk = true;
+
+                                        if (appFunctionConfig.loginConfig.isEnableSyncAddressBook()) {
+
+                                            contacts.clear();
+                                            groups.clear();
+                                            depts.clear();
+
+                                            AddressBookHandle.handleContent(pocLoginResult.msg, contacts, groups, depts);
+
+                                            Log.i("ddddddddddddd", "run: 通讯录");
+                                        }
 
                                     } else {
                                         loginBtn.setText("PoC登录失败 " + pocLoginResult.msg);
@@ -304,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
             out("已退出center");
             loginCenterBtn.setText("登录智能中心");
         } else {
-            manager.loginCenter(centerMeetingNum,centerName, centerPwd, new CenterLoginUtils.LoginCenterCallback() {
+            manager.loginCenter(centerMeetingNum, centerName, centerPwd, new CenterLoginUtils.LoginCenterCallback() {
                 @Override
                 public void onSuccess(CenterLoginResult result) {
                     out(result.toString());
@@ -413,7 +444,7 @@ public class MainActivity extends AppCompatActivity {
     public void onToMainClick(View view) {
         if (isPocLoginOk) {
             startActivity(new Intent(MainActivity.this, FunctionActivity.class));
-        }else{
+        } else {
             Toast.makeText(this, "请先登录PoC", Toast.LENGTH_SHORT).show();
         }
     }

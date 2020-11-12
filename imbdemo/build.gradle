@@ -25,6 +25,11 @@ android {
         }
     }
 
+    compileOptions{
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+
 }
 
 repositories {
@@ -43,11 +48,20 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-//    api project(path: ':imb-sdk')
+    implementation project(path: ':imb-sdk')
 
-    api(name:'imb-sdk-1.0', ext:'aar')
+//    api(name:'imb-sdk-1.0', ext:'aar')
 
-//    api group: 'com.jcraft', name: 'jsch', version: '0.1.55' //同步通讯录就需要加
-//    api 'com.squareup.okhttp3:okhttp:4.0.1' //登录智能中心需要
-//    api 'com.alibaba:fastjson:1.2.58' //登录智能中心需要
+    api group: 'com.jcraft', name: 'jsch', version: '0.1.55' //同步通讯录就需要加
+    api 'com.squareup.okhttp3:okhttp:4.0.1' //登录智能中心需要
+    api 'com.alibaba:fastjson:1.2.58' //登录智能中心需要 解析通讯录
+
+    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.46'
+    implementation 'androidx.recyclerview:recyclerview:1.2.0-alpha06'
+
+}
+
+repositories {
+    //recyclerView
+    maven { url "https://jitpack.io" }
 }

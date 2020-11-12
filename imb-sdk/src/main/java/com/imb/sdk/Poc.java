@@ -10,12 +10,15 @@ import com.microsys.poc.jni.listener.BaseJniListener;
  */
 public class Poc {
 
-
     public static void registerListener(BaseJniListener listener){
-        JniUtils.getInstance().addJniListener(listener);
+        if (listener != null) {
+            JniUtils.getInstance().addJniListener(listener);
+        }
     }
     public static void unregisterListener(BaseJniListener listener){
-        JniUtils.getInstance().removeJniListener(listener);
+        if (listener != null) {
+            JniUtils.getInstance().removeJniListener(listener);
+        }
     }
 
 

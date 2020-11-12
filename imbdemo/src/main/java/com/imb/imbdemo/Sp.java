@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 public class Sp {
     public static final String POC_NUM = "poc_num";
     public static final String POC_PWD = "poc_pwd";
+    public static final String POC_SERVER = "poc_server";
 
     public static final String CENTER_MEETING_NUM = "center_meeting_num";
     public static final String CENTER_NAME = "center_name";

@@ -3,6 +3,7 @@ package com.imb.sdk.call;
 import android.util.Log;
 
 import com.imb.sdk.data.PocConstant;
+import com.imb.sdk.util.GroupOperationHelper;
 import com.microsys.poc.jni.JniUtils;
 import com.microsys.poc.jni.entity.type.PocCallType;
 import com.microsys.poc.jni.utils.LogUtil;
@@ -115,5 +116,16 @@ public class CallUtils {
         Log.i(TAG, "tbcpForceOneRelease: " + channel + " num:" + num);
         int result = JniUtils.getInstance().PocTbcpInfo(channel, 2, num);
         return result == 0;
+    }
+
+    /**
+     * 邀请其他人员加入这个通话，组对讲有效
+     * @param groupNum 组的号码
+     * @param groupType 组的类型
+     * @param invitedMemberNums 邀请加入的人的号码
+     * @param myNum 自己的号码
+     */
+    public static void inviteOneToMeeting(String groupNum, int groupType, java.lang.Iterable<String>  invitedMemberNums, String myNum){
+        GroupOperationHelper.addMembers(groupNum, groupType, invitedMemberNums, myNum);
     }
 }

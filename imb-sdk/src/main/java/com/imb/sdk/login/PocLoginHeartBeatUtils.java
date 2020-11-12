@@ -150,6 +150,13 @@ public class PocLoginHeartBeatUtils extends PocRegisterListener {
     }
 
     /**
+     * 发送一个sip info消息到服务端，当网咯从不可用切换到可用时
+     */
+    public void sendMsgToServerWhenNetOk(){
+        JniUtils.getInstance().PocSendSipInfoNULL();
+    }
+
+    /**
      * 立即发送快速心跳
      * 当屏幕暗变亮或者切换到有网络的状态时需要立即发送保证连接
      */

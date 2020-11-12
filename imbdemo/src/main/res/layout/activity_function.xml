@@ -22,4 +22,18 @@
         android:layout_height="wrap_content"
         android:text="消息"/>
 
+    <Button
+        android:layout_marginTop="20dp"
+        android:onClick="onBookClick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="通讯录"/>
+
+    <Button
+        android:layout_marginTop="20dp"
+        android:onClick="onGroupClick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="工作组"/>
+
 </LinearLayout>

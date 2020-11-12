@@ -12,6 +12,8 @@ public class ConfigEditActivity extends AppCompatActivity {
     SharedPreferences sp;
     private EditText pocNumEdit;
     private EditText pocPwdEdit;
+    private EditText pocServerEdit;
+
 
     private EditText centerMeetingNumEdit;
     private EditText centerNameEdit;
@@ -26,6 +28,7 @@ public class ConfigEditActivity extends AppCompatActivity {
         sp = Sp.getSp(this);
         final String pocNum = sp.getString(Sp.POC_NUM, null);
         final String pocPwd = sp.getString(Sp.POC_PWD, null);
+        final String pocServer = sp.getString(Sp.POC_SERVER, null);
 
         final String centerMeetingNum = sp.getString(Sp.CENTER_MEETING_NUM, null);
         final String centerName = sp.getString(Sp.CENTER_NAME, null);
@@ -34,6 +37,7 @@ public class ConfigEditActivity extends AppCompatActivity {
 
         pocNumEdit = (EditText) findViewById(R.id.edit_num);
         pocPwdEdit = (EditText) findViewById(R.id.edit_pwd);
+        pocServerEdit = (EditText) findViewById(R.id.edit_poc_server);
 
         centerMeetingNumEdit = (EditText) findViewById(R.id.edit_center_meeting_num);
         centerNameEdit = (EditText) findViewById(R.id.edit_center_name);
@@ -42,6 +46,7 @@ public class ConfigEditActivity extends AppCompatActivity {
 
         pocNumEdit.setText(pocNum);
         pocPwdEdit.setText(pocPwd);
+        pocServerEdit.setText(pocServer);
 
         centerMeetingNumEdit.setText(centerMeetingNum);
         centerNameEdit.setText(centerName);
@@ -53,8 +58,10 @@ public class ConfigEditActivity extends AppCompatActivity {
     public void onConfirmClick(View view) {
         final String num = pocNumEdit.getText().toString().trim();
         final String pwd = pocPwdEdit.getText().toString().trim();
+        final String server = pocServerEdit.getText().toString().trim();
         sp.edit().putString(Sp.POC_NUM,num).commit();
         sp.edit().putString(Sp.POC_PWD,pwd).commit();
+        sp.edit().putString(Sp.POC_SERVER,server).commit();
 
         final String centerMeetingNum = centerMeetingNumEdit.getText().toString().trim();
         final String centerName = centerNameEdit.getText().toString().trim();

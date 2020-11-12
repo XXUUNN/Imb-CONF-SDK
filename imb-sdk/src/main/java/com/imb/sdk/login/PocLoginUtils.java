@@ -334,7 +334,6 @@ public class PocLoginUtils {
         return null;
     }
 
-
     private static class LoginCallable extends PocRegisterListener implements Callable<PocLoginResult> {
         private volatile boolean isRunning;
 
@@ -514,10 +513,14 @@ public class PocLoginUtils {
         }
 
         private PocLoginResult getLoginResult(int code) {
-            return new PocLoginResult(code, ResponseTranslateUtils.loginResultToDesc(code));
+            return getLoginResult(code, ResponseTranslateUtils.loginResultToDesc(code));
         }
 
         private PocLoginResult getLoginResult(int code, String msg) {
+            //关闭sftp
+            if (sftp != null) {
+                sftp.close();
+            }
             return new PocLoginResult(code, msg);
         }
 
@@ -606,3 +609,4 @@ public class PocLoginUtils {
         }
     }
 }
+
