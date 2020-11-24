@@ -22,9 +22,9 @@ import com.chad.library.adapter.base.util.MultiTypeDelegate;
 import com.imb.imbdemo.entity.ContactEntity;
 import com.imb.imbdemo.entity.ContactGroupEntity;
 import com.imb.sdk.Poc;
+import com.imb.sdk.addressbook.AddressBookSyncByHttp;
 import com.imb.sdk.listener.PocAddressBookChangeListener;
 import com.imb.sdk.listener.PocGroupEditListener;
-import com.imb.sdk.login.AddressBookSyncUtils;
 import com.imb.sdk.util.GroupOperationHelper;
 import com.microsys.poc.jni.entity.GroupOperatingResult;
 
@@ -47,9 +47,9 @@ public class GroupActivity extends AppCompatActivity {
 
     private ContactGroupEntity curGroup;
     private Handler handler;
-    private AddressBookSyncUtils.AddressBookCallback callback;
     private SharedPreferences configSp;
     private String num;
+    private String syncHttpUrl;
     private PocAddressBookChangeListener pocAddressBookChangeListener;
     private PocGroupEditListener pocGroupEditListener;
 
@@ -63,6 +63,9 @@ public class GroupActivity extends AppCompatActivity {
 
         configSp = Sp.getSp(this);
         num = configSp.getString(Sp.POC_NUM, null);
+        String pocServer = configSp.getString(Sp.POC_SERVER, null);
+        this.syncHttpUrl = AddressBookSyncByHttp.getSyncAddressBookUrl(pocServer);
+
         recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         dataList.addAll(MainActivity.groups);
@@ -165,7 +168,27 @@ public class GroupActivity extends AppCompatActivity {
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                AddressBookSyncUtils.request();
+                AddressBookSyncByHttp.getAddressBook(num, syncHttpUrl, new AddressBookSyncByHttp.Callback() {
+                    @Override
+                    public void callback(boolean isOk, String msg) {
+                        if (!isOk) {
+                            return;
+                        }
+                        if (msg == null) {
+                            return;
+                        }
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                MainActivity.contacts.clear();
+                                MainActivity.groups.clear();
+                                MainActivity.depts.clear();
+                                AddressBookHandle.handleContent(msg, MainActivity.contacts, MainActivity.groups, MainActivity.depts);
+                                refreshUI();
+                            }
+                        });
+                    }
+                });
             }
         };
         pocAddressBookChangeListener = new PocAddressBookChangeListener() {
@@ -176,27 +199,6 @@ public class GroupActivity extends AppCompatActivity {
             }
         };
         Poc.registerListener(pocAddressBookChangeListener);
-        callback = new AddressBookSyncUtils.AddressBookCallback() {
-            @Override
-            public void onReceiveAddressBook(final String content) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        MainActivity.contacts.clear();
-                        MainActivity.groups.clear();
-                        MainActivity.depts.clear();
-                        AddressBookHandle.handleContent(content, MainActivity.contacts, MainActivity.groups, MainActivity.depts);
-                        refreshUI();
-                        Toast.makeText(GroupActivity.this, "组变化了", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        };
-
-        String pocServer = configSp.getString(Sp.POC_SERVER, null);
-
-        AddressBookSyncUtils.startAddressBookListen(callback, num, pocServer, 2222, "sftpuser",
-                "sftpuser", "/home/poc_addrlist", getExternalFilesDir("poc").getAbsolutePath());
     }
 
     private void refreshUI() {
@@ -206,7 +208,7 @@ public class GroupActivity extends AppCompatActivity {
                 if (TextUtils.equals(group.getNumber(), curGroup.getNumber())) {
                     dataList.addAll(group.getContactsList());
                     curGroup = group;
-                    setTitle("工作组:"+curGroup.getName()+"_"+curGroup.getNumber());
+                    setTitle("工作组:" + curGroup.getName() + "_" + curGroup.getNumber());
                 }
             }
         }
@@ -221,7 +223,6 @@ public class GroupActivity extends AppCompatActivity {
         if (handler != null) {
             handler.removeCallbacksAndMessages(null);
         }
-        AddressBookSyncUtils.stopAddressBookListen();
     }
 
     private void showGroup(ContactGroupEntity entity) {
@@ -230,7 +231,7 @@ public class GroupActivity extends AppCompatActivity {
             dataList.addAll(entity.getContactsList());
             myAdapter.notifyDataSetChanged();
             curGroup = entity;
-            setTitle("工作组:"+curGroup.getName()+"_"+curGroup.getNumber());
+            setTitle("工作组:" + curGroup.getName() + "_" + curGroup.getNumber());
         }
     }
 
@@ -250,8 +251,8 @@ public class GroupActivity extends AppCompatActivity {
 
     public void onEditGroupClick(View view) {
         if (curGroup != null) {
-            new GroupEditWindow(this,curGroup).show(findViewById(android.R.id.content));
-        }else{
+            new GroupEditWindow(this, curGroup).show(findViewById(android.R.id.content));
+        } else {
             Toast.makeText(this, "先选择组", Toast.LENGTH_SHORT).show();
         }
     }
@@ -455,7 +456,7 @@ public class GroupActivity extends AppCompatActivity {
                         Toast.makeText(context, "请输入名字", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    if (selected.isEmpty() && TextUtils.equals(s,groupEntity.getName())) {
+                    if (selected.isEmpty() && TextUtils.equals(s, groupEntity.getName())) {
                         Toast.makeText(context, "请选择成员或者更新组名", Toast.LENGTH_SHORT).show();
                         return;
                     }

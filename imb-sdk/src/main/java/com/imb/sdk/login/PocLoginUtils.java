@@ -12,6 +12,9 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.imb.sdk.Poc;
+import com.imb.sdk.addressbook.AddressBookSyncByHttp;
+import com.imb.sdk.addressbook.AddressBookSyncUtils;
+import com.imb.sdk.addressbook.SftpUtils;
 import com.imb.sdk.data.PocConstant;
 import com.imb.sdk.data.entity.AccountInfo;
 import com.imb.sdk.data.entity.AppFunctionConfig;
@@ -32,6 +35,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import androidx.core.app.ActivityCompat;
+import okhttp3.Call;
 
 /**
  * @author - gongxun;
@@ -279,7 +283,7 @@ public class PocLoginUtils {
         AppFunctionConfig.VideoConfig videoConfig = appFunctionConfig.videoConfig;
         configAvInfo(videoConfig.height, videoConfig.width,
                 videoConfig.isHardVideoEnc,
-                videoConfig.isHardVideoDec, videoConfig.frameRate, videoConfig.bitRate,videoConfig.iFrameTime);
+                videoConfig.isHardVideoDec, videoConfig.frameRate, videoConfig.bitRate, videoConfig.iFrameTime);
         return result == 0;
     }
 
@@ -605,6 +609,212 @@ public class PocLoginUtils {
                 sftp = new SftpUtils(appFunctionConfig.loginConfig.serverIp, appFunctionConfig.loginConfig.getSftpPort(),
                         appFunctionConfig.loginConfig.getSftpUserName(), appFunctionConfig.loginConfig.getSftpUserPwd(),
                         null);
+            }
+        }
+    }
+
+    private static class LoginCallable1 extends PocRegisterListener implements Callable<PocLoginResult> {
+        private volatile boolean isRunning;
+
+        /**
+         * 是否正在同步通讯录
+         */
+        private volatile boolean isOnSyncAddressBook;
+
+        private volatile boolean isRegisterOk;
+
+        //记录poc登录失败的值 用于返回 另一边只读
+        private volatile int pocResultCode;
+
+        private AppFunctionConfig appFunctionConfig;
+        private AccountInfo accountInfo;
+        //记录是否超时
+        private long loginStartTime = -1;
+        private long timeOut;
+
+        /**
+         * 服务端通知的同步通讯录的结果
+         * -1 未收到服务端通知
+         * 1 成功
+         * 0 失败
+         */
+        private volatile int syncAddressBookResult = -1;
+        private volatile String syncAddressBookMsg;
+        private Thread curThread;
+
+
+        public LoginCallable1(AppFunctionConfig appFunctionConfig, AccountInfo accountInfo) {
+            this.appFunctionConfig = appFunctionConfig;
+            this.accountInfo = accountInfo;
+
+            timeOut = appFunctionConfig.loginConfig.loginTimeOut;
+
+            isRunning = true;
+        }
+
+        private void stopLogin() {
+            //先改变标志
+            isRunning = false;
+            //打断sleep 立即结束流程
+            if (curThread.isAlive()) {
+                curThread.interrupt();
+            }
+        }
+
+        @Override
+        public PocLoginResult call() {
+            curThread = Thread.currentThread();
+            if (!isRunning) {
+                return getLoginResult(PocConstant.RegisterResult.RESULT_CANCEL);
+            }
+            //注册PoC
+            registerRegisterListener();
+            while (isRunning && !isLoginTimeOver() && !isRegisterOk) {
+                boolean result = syncConfig(accountInfo, appFunctionConfig);
+                if (result) {
+                    //配置成功
+                    JniUtils.getInstance().startProcessCallBack();
+                    JniUtils.getInstance().startPocMainSipThread();
+
+                    LogUtil.getInstance().logWithMethod(new Exception(), "Login() recvSipAndTbcpThread.start()", "Zhaolg");
+
+                    try {
+                        Thread.sleep(1000);//停顿1s等待线程启动
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    //循环注册包
+                    while (isRunning && !isLoginTimeOver() && !isRegisterOk) {
+                        syncLogin(appFunctionConfig);
+
+                        LogUtil.getInstance().logWithMethod(new Exception(), "2.5s循环poc register", "x");
+                        //2.5s轮询
+                        try {
+                            Thread.sleep(2500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    break;
+                } else {
+                    //1s轮询
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                LogUtil.getInstance().logWithMethod(new Exception(), "1s循环poc config", "x");
+            }
+            unregisterRegisterListener();
+            if (!isRunning) {
+                return getLoginResult(PocConstant.RegisterResult.RESULT_CANCEL);
+            }
+            if (!isRegisterOk) {
+                //如果登录失败直接返回
+                return getLoginResult(pocResultCode);
+            }
+            //是否还需要看通讯录同步结果
+            if (!isOnSyncAddressBook) {
+                //成功返回
+                return getLoginResult(PocConstant.RegisterResult.RESULT_SUCCESS);
+            }
+            //接着同步通讯录
+            String syncHttpUrl = AddressBookSyncByHttp.getSyncAddressBookUrl(appFunctionConfig.loginConfig.serverIp);
+            Call addressBook = AddressBookSyncByHttp.getAddressBook(accountInfo.num, syncHttpUrl, new AddressBookSyncByHttp.Callback() {
+                @Override
+                public void callback(boolean isOk, String msg) {
+                    syncAddressBookResult = isOk ? 1 : 0;
+                    syncAddressBookMsg = msg;
+                }
+            });
+            //等待回调结果
+            while (isRunning && !isLoginTimeOver() && syncAddressBookResult < 0) {
+                //100ms判断一下 到了后面步骤 剩余超时时间少了，最好判断细一些
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            //判断是取消了
+            if (!isRunning) {
+                if (syncAddressBookResult < 0) {
+                    //美收到结果
+                    addressBook.cancel();
+                }
+                return getLoginResult(PocConstant.RegisterResult.RESULT_CANCEL);
+            }
+            //判断是不没收到服务端的通知结果
+            if (syncAddressBookResult < 0) {
+                addressBook.cancel();
+                return getLoginResult(PocConstant.RegisterResult.RESULT_SYNC_ADDRESS_BOOK_ERROR);
+            }
+            //处理通知的结果
+            if (syncAddressBookResult == 1) {
+                //成功了 就处理通讯录
+                //返回结果
+                return getLoginResult(PocConstant.RegisterResult.RESULT_SUCCESS, syncAddressBookMsg);
+            } else {
+                //失败返回
+                return getLoginResult(PocConstant.RegisterResult.RESULT_SYNC_ADDRESS_BOOK_ERROR,
+                        syncAddressBookMsg);
+            }
+        }
+
+        private PocLoginResult getLoginResult(int code) {
+            return getLoginResult(code, ResponseTranslateUtils.loginResultToDesc(code));
+        }
+
+        private PocLoginResult getLoginResult(int code, String msg) {
+            return new PocLoginResult(code, msg);
+        }
+
+        private boolean isLoginTimeOver() {
+            if (loginStartTime == -1) {
+                loginStartTime = System.currentTimeMillis();
+                return false;
+            } else {
+                return System.currentTimeMillis() - loginStartTime > timeOut;
+            }
+        }
+
+        private void unregisterRegisterListener() {
+            Poc.unregisterListener(this);
+        }
+
+        private void registerRegisterListener() {
+            Poc.registerListener(this);
+        }
+
+        @Override
+        protected void onRegisterResult(String num, int result) {
+            if (!TextUtils.equals(num, accountInfo.num)) {
+                //不是当前登录账户的名字
+                return;
+            }
+
+            if (isRegisterOk) {
+                return;
+            }
+
+            if (result == PocConstant.RegisterResult.RESULT_SUCCESS) {
+                LogUtil.getInstance().logWithMethod(new Exception(), "PoC login success num=" + num, "x");
+
+                //判断是否需要同步通讯录
+                if (appFunctionConfig.loginConfig.isEnableSyncAddressBook()) {
+                    isOnSyncAddressBook = true;
+                }
+                isRegisterOk = true;
+                //标志更新完了 打断sleep 登录程序继续往下走
+                curThread.interrupt();
+
+            } else {
+                isRegisterOk = false;
+
+                pocResultCode = result;
             }
         }
     }

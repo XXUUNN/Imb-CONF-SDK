@@ -227,7 +227,7 @@ public class AddressBookHandle {
                 //没有自己 需要手动添加
                 ContactEntity my = contactMap.get(userId);
                 if (my != null) {
-                    contactList.add(0,my);
+                    contactList.add(0, my);
                 }
             }
 

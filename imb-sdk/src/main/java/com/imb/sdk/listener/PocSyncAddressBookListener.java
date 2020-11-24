@@ -6,6 +6,8 @@ import com.microsys.poc.jni.base.BaseAddressUrlListener;
  * @author - gongxun;
  * created on 2020/9/23-17:51;
  * description - 同步通讯录监听
+ * @see com.imb.sdk.addressbook.AddressBookSyncByHttp
  */
+@Deprecated
 public abstract class PocSyncAddressBookListener extends BaseAddressUrlListener {
 }

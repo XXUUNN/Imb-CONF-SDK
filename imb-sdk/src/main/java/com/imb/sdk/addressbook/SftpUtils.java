@@ -1,4 +1,4 @@
-package com.imb.sdk.login;
+package com.imb.sdk.addressbook;
 
 import android.text.TextUtils;
 
@@ -16,7 +16,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-class SftpUtils {
+/**
+ * 已经替换为http方式 不用sftp
+ */
+@Deprecated
+public class SftpUtils {
     protected String host;
     protected int port;
     protected String username;

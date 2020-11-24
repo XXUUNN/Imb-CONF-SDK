@@ -1,10 +1,11 @@
-package com.imb.sdk.login;
+package com.imb.sdk.addressbook;
 
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.imb.sdk.Poc;
 import com.imb.sdk.listener.PocSyncAddressBookListener;
+import com.imb.sdk.login.FileUtils;
 import com.microsys.poc.jni.JniUtils;
 import com.microsys.poc.jni.entity.SyncAddressBookResult;
 
@@ -18,7 +19,9 @@ import java.util.concurrent.Semaphore;
  * @author - gongxun;
  * created on 2019/4/24-11:42;
  * description - 同步通讯录 会上传下载
+ * Deprecated. be instead of {@link AddressBookSyncByHttp}
  */
+@Deprecated
 public class AddressBookSyncUtils {
     private static final String TAG = AddressBookSyncUtils.class.getSimpleName();
 
