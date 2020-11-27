@@ -16,6 +16,7 @@ import com.microsys.poc.jni.show.LocalVideoView;
  */
 public class VideoHalfCallFragment extends BaseHalfCallFragment {
     int screenOrientation = 0;
+
     @Override
     protected void updateOnCallUI(CallInfo callInfo, final View onCallView) {
         super.updateOnCallUI(callInfo, onCallView);
@@ -24,10 +25,8 @@ public class VideoHalfCallFragment extends BaseHalfCallFragment {
                 Constant.height, Constant.frameRate, Constant.bitRate, Constant.iFrameTime,
                 0, screenOrientation, true);
         float density = getResources().getDisplayMetrics().density;
-        android.hardware.Camera.CameraInfo cameraInfoinfo = new android.hardware.Camera.CameraInfo();
-        int cameraOrientation = cameraInfoinfo.orientation;
         localPreview.setMaxSize(((int) (72 * density)),
-                ((int) (128 * density)), screenOrientation).adjustAspectRatio(cameraOrientation, screenOrientation);
+                ((int) (128 * density)), screenOrientation).adjustAspectRatio(screenOrientation);
         localPreview.startCreateAvcEncoder(0);
         final FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams((int) (72 * density), (int) (128 * density), Gravity.RIGHT | Gravity.BOTTOM);
         frameLayout.addView(localPreview, layoutParams);

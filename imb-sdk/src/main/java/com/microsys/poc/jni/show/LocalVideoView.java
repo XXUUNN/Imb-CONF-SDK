@@ -107,26 +107,15 @@ public class LocalVideoView extends SurfaceView implements SurfaceHolder.Callbac
         return this;
     }
 
-    public void adjustAspectRatio(int cameraRotation, int screenOrientation) {
+    public void adjustAspectRatio(int screenOrientation) {
         int sourceW;
         int sourceH;
-        if (cameraRotation == 0 || cameraRotation == 180) {
-            if (screenOrientation == VideoDirection.SCREEN_PORTRAIT) {
-                sourceW = mPreviewHeight;
-                sourceH = mPreviewWidth;
-            } else {
-                sourceW = mPreviewWidth;
-                sourceH = mPreviewHeight;
-            }
-
+        if (screenOrientation == VideoDirection.SCREEN_PORTRAIT) {
+            sourceW = mPreviewHeight;
+            sourceH = mPreviewWidth;
         } else {
-            if (screenOrientation == VideoDirection.SCREEN_PORTRAIT) {
-                sourceW = mPreviewWidth;
-                sourceH = mPreviewHeight;
-            } else {
-                sourceW = mPreviewHeight;
-                sourceH = mPreviewWidth;
-            }
+            sourceW = mPreviewWidth;
+            sourceH = mPreviewHeight;
         }
 
         int mViewWidth, mViewHeight;
@@ -146,7 +135,7 @@ public class LocalVideoView extends SurfaceView implements SurfaceHolder.Callbac
         margin = 0;
         mViewHeight = (int) maxH;
         mViewWidth = (int) maxW;
-        Log.i("qqqqqqqqq", "localView:"+mViewWidth+"_"+mViewHeight);
+        Log.i("qqqqqqqqq", "localView:" + mViewWidth + "_" + mViewHeight);
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         if (layoutParams == null) {
             layoutParams = new FrameLayout.LayoutParams(mViewWidth, mViewHeight);
