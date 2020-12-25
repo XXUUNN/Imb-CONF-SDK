@@ -1118,8 +1118,9 @@ public final class JniUtils {
 
     /**
      * @param cameraTowards 0：【视频方向】 1：【数据类型0=默认类型 1=H264 2=NV21】
+     * @param timestamps 库里大小为2 暂时只用第0个
      */
-    private int readVideo(byte[] data, byte[] timestamps, byte[] cameraTowards) {
+    private int readVideo(byte[] data, int[] timestamps, byte[] cameraTowards) {
         if (!enableRead) {
             Log.i(TAG, "readreadVideo: no");
             return 0;
@@ -1144,12 +1145,7 @@ public final class JniUtils {
 //		    getYUVFile(data,data.length);
 //			getH264File(dataTmp,dataTmp.length);
 
-            // vData.getTimestamps());
-            String timestamp = String.format("%010d", vData.getTimestamps());
-
-            byte[] tmp = timestamp.getBytes();
-
-            System.arraycopy(tmp, 0, timestamps, 0, tmp.length);
+            timestamps[0] = vData.getTimestamps();
 
             cameraTowards[0] = (byte) vData.getCameraId();
             cameraTowards[1] = 0;

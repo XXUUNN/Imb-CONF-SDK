@@ -97,7 +97,7 @@ public class AddressBookSyncByHttp {
     }
 
     public static String getSyncAddressBookUrl(String pocServerIp){
-        return "http://" + pocServerIp + "/8085/syncAddress";
+        return "http://" + pocServerIp + ":8085/syncAddress";
     }
 
 }

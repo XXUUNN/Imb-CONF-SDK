@@ -53,7 +53,7 @@ public class PocLoginUtils {
      */
     private volatile static boolean isOnLogin = false;
 
-    private static LoginCallable loginCallable;
+    private static LoginCallableImpl1 loginCallable;
 
     public static void getAndroidId(Context context) {
         singleId = getSingleKey(context);
@@ -107,7 +107,7 @@ public class PocLoginUtils {
         //应用配置
         applyConfig(appFunctionConfig);
         //执行登录
-        loginCallable = new LoginCallable(appFunctionConfig, accountInfo);
+        loginCallable = new LoginCallableImpl1(appFunctionConfig, accountInfo);
         Future<PocLoginResult> task = Executors.newSingleThreadExecutor().submit(loginCallable);
         try {
             PocLoginResult result = task.get();
@@ -338,7 +338,7 @@ public class PocLoginUtils {
         return null;
     }
 
-    private static class LoginCallable extends PocRegisterListener implements Callable<PocLoginResult> {
+    private static class LoginCallableImpl extends PocRegisterListener implements Callable<PocLoginResult> {
         private volatile boolean isRunning;
 
         /**
@@ -372,7 +372,7 @@ public class PocLoginUtils {
         private Thread curThread;
 
 
-        public LoginCallable(AppFunctionConfig appFunctionConfig, AccountInfo accountInfo) {
+        public LoginCallableImpl(AppFunctionConfig appFunctionConfig, AccountInfo accountInfo) {
             this.appFunctionConfig = appFunctionConfig;
             this.accountInfo = accountInfo;
 
@@ -381,7 +381,7 @@ public class PocLoginUtils {
             isRunning = true;
         }
 
-        private void stopLogin() {
+        public void stopLogin() {
             //先改变标志
             isRunning = false;
             //打断sleep 立即结束流程
@@ -389,6 +389,7 @@ public class PocLoginUtils {
                 curThread.interrupt();
             }
         }
+
 
         @Override
         public PocLoginResult call() {
@@ -613,7 +614,7 @@ public class PocLoginUtils {
         }
     }
 
-    private static class LoginCallable1 extends PocRegisterListener implements Callable<PocLoginResult> {
+    private static class LoginCallableImpl1 extends PocRegisterListener implements Callable<PocLoginResult> {
         private volatile boolean isRunning;
 
         /**
@@ -634,7 +635,7 @@ public class PocLoginUtils {
 
         /**
          * 服务端通知的同步通讯录的结果
-         * -1 未收到服务端通知
+         * -1 未收到服务端通知 请求中
          * 1 成功
          * 0 失败
          */
@@ -643,7 +644,7 @@ public class PocLoginUtils {
         private Thread curThread;
 
 
-        public LoginCallable1(AppFunctionConfig appFunctionConfig, AccountInfo accountInfo) {
+        public LoginCallableImpl1(AppFunctionConfig appFunctionConfig, AccountInfo accountInfo) {
             this.appFunctionConfig = appFunctionConfig;
             this.accountInfo = accountInfo;
 
@@ -652,7 +653,7 @@ public class PocLoginUtils {
             isRunning = true;
         }
 
-        private void stopLogin() {
+        public void stopLogin() {
             //先改变标志
             isRunning = false;
             //打断sleep 立即结束流程
@@ -723,16 +724,25 @@ public class PocLoginUtils {
             }
             //接着同步通讯录
             String syncHttpUrl = AddressBookSyncByHttp.getSyncAddressBookUrl(appFunctionConfig.loginConfig.serverIp);
-            Call addressBook = AddressBookSyncByHttp.getAddressBook(accountInfo.num, syncHttpUrl, new AddressBookSyncByHttp.Callback() {
+            AddressBookSyncByHttp.Callback callback = new AddressBookSyncByHttp.Callback() {
                 @Override
                 public void callback(boolean isOk, String msg) {
                     syncAddressBookResult = isOk ? 1 : 0;
                     syncAddressBookMsg = msg;
                 }
-            });
-            //等待回调结果
-            while (isRunning && !isLoginTimeOver() && syncAddressBookResult < 0) {
+            };
+            Call addressBook = AddressBookSyncByHttp.getAddressBook(accountInfo.num, syncHttpUrl, callback);
+            //等待成功结果 否则一直同步请求
+            while (isRunning && !isLoginTimeOver() && syncAddressBookResult != 1) {
                 //100ms判断一下 到了后面步骤 剩余超时时间少了，最好判断细一些
+                if (syncAddressBookResult == -1) {
+                    //还在请求中 不发起请求 继续等待结果
+                } else if (syncAddressBookResult == 0) {
+                    //反回了失败了 重新发起请求 标志置回请求中的状态
+                    syncAddressBookResult = -1;
+                    addressBook = AddressBookSyncByHttp.getAddressBook(accountInfo.num, syncHttpUrl, callback);
+                }
+
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -818,5 +828,7 @@ public class PocLoginUtils {
             }
         }
     }
+
+
 }
 
