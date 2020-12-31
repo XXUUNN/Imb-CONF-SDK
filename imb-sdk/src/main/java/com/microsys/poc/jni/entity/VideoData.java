@@ -2,7 +2,7 @@ package com.microsys.poc.jni.entity;
 
 public class VideoData {
 	byte[] data;
-	int    timestamps;
+	long    timestamps;
 	int    cameraId;
 	
 	public byte[] getData() {
@@ -11,10 +11,10 @@ public class VideoData {
 	public void setData(byte[] data) {
 		this.data = data;
 	}
-	public int getTimestamps() {
+	public long getTimestamps() {
 		return timestamps;
 	}
-	public void setTimestamps(int timestamps) {
+	public void setTimestamps(long timestamps) {
 		this.timestamps = timestamps;
 	}
 	public int getCameraId() {

@@ -1120,7 +1120,7 @@ public final class JniUtils {
      * @param cameraTowards 0：【视频方向】 1：【数据类型0=默认类型 1=H264 2=NV21】
      * @param timestamps 库里大小为2 暂时只用第0个
      */
-    private int readVideo(byte[] data, int[] timestamps, byte[] cameraTowards) {
+    private int readVideo(byte[] data, long[] timestamps, byte[] cameraTowards) {
         if (!enableRead) {
             Log.i(TAG, "readreadVideo: no");
             return 0;
@@ -1243,7 +1243,7 @@ public final class JniUtils {
      * @param cameraTowards 视频流的方向
      */
     private void writeVideo(byte[] data, int len, int height, int width,
-                            int stampTime, int cameraTowards, int ssrc) {
+                            long stampTime, int cameraTowards, int ssrc) {
 
         if (!enableWrite) {
             Log.i(TAG, "writeVideo: " + enableWrite);
@@ -1430,7 +1430,7 @@ public final class JniUtils {
 
     private List<VideoData> videoSendDataList = new ArrayList<VideoData>();
 
-    public void setVideoData(byte[] data, int timestamps, int cameraId) {
+    public void setVideoData(byte[] data, long timestamps, int cameraId) {
         synchronized (videoSendDataList) {
             try {
                 if (videoSendDataList.size() > 4) {

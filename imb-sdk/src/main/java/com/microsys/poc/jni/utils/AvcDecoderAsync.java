@@ -335,7 +335,7 @@ public class AvcDecoderAsync {
         return dir;
     }
 
-    public void inputDecodecData1(byte[] encodecData, int length, int stampTime, int videoDirection) {
+    public void inputDecodecData1(byte[] encodecData, int length, long stampTime, int videoDirection) {
         try {
             ByteBuffer[] decoderInputBuffers = decoder.getInputBuffers();
             int inputBufIndex = decoder.dequeueInputBuffer(-1);
@@ -542,7 +542,7 @@ public class AvcDecoderAsync {
                         byte[] data = videoRecvDataCache.getData();
 
 //                        getYUVFile(data);
-                        inputDecodecData1(data, videoRecvDataCache.getDataLen(), (int) videoRecvDataCache.getCpTime(), videoRecvDataCache.getDirection());
+                        inputDecodecData1(data, videoRecvDataCache.getDataLen(), videoRecvDataCache.getCpTime(), videoRecvDataCache.getDirection());
 
                         VideoRecvData recvData = outputDecodecData1();
                         while (null != recvData) {
@@ -587,7 +587,7 @@ public class AvcDecoderAsync {
      * @param stampTime 时间戳
      * @param videoDir  方向
      */
-    public void asyncInput(byte[] data, int len, int width, int height, int stampTime, int videoDir) {
+    public void asyncInput(byte[] data, int len, int width, int height, long stampTime, int videoDir) {
 //        Log.i(TAG, "asyncInput: ");
         //填充入缓存
 //        if (id == 1) {
@@ -618,6 +618,7 @@ public class AvcDecoderAsync {
     public interface Callback {
         /**
          * 回调解码后的数据
+         *
          * @param recvData 解码后的数据
          */
         void callback(VideoRecvData recvData);

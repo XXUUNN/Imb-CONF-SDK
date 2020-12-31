@@ -39,7 +39,7 @@ public class LocalVideoView extends SurfaceView implements SurfaceHolder.Callbac
     //不明参数
     boolean bIfPreview = false;
     double defaultStamp = 4500;
-    static double timestamp = 0;
+    static long timestamp = 0;
     long currCount = 0;//当前帧数
     long beginTime = 0;
     long lastTime = 0;
@@ -504,7 +504,7 @@ public class LocalVideoView extends SurfaceView implements SurfaceHolder.Callbac
 //                        Thread.sleep(10);
 
                         if (AvcEncoder.enCodecMode == 1 && null != avcEncoder) {
-                            int ts = GetStampTime();
+                            long ts = GetStampTime();
 
                             if (ts == -1) {
                                 continue;
@@ -522,7 +522,7 @@ public class LocalVideoView extends SurfaceView implements SurfaceHolder.Callbac
                                 while (null != encodecData) {
 
                                     byte[] h264 = encodecData.getData();
-                                    int videoTs = (int) encodecData.getTs();
+                                    long videoTs =  encodecData.getTs();
                                     int cameraId = encodecData.getCameraId();
 
 //                                    Log.i("dddddddd", "run111: " + cameraId);
@@ -643,7 +643,7 @@ public class LocalVideoView extends SurfaceView implements SurfaceHolder.Callbac
             currCount = 0;
         }
 
-        int ret_ts;
+        long ret_ts;
         if (0 == currCount) {
             beginTime = System.currentTimeMillis();
             JniUtils.getInstance().setVideoData(data, 0, videoDirection);
@@ -659,12 +659,12 @@ public class LocalVideoView extends SurfaceView implements SurfaceHolder.Callbac
                 if (now - beginTime >= currCount * 1000 / mPreviewRate) {
                     timestamp = timestamp + temptimestamp;
 
-                    int frameIndex = (int) timestamp / m_tsPerS;
+                    long frameIndex = timestamp / m_tsPerS;
                     if (frameIndex > currCount) {
                         ret_ts = frameIndex * m_tsPerS;
                         currCount = frameIndex;
                     } else {
-                        ret_ts = ((int) currCount + 1) * m_tsPerS;
+                        ret_ts = ( currCount + 1) * m_tsPerS;
                         currCount++;
                     }
 
@@ -680,7 +680,7 @@ public class LocalVideoView extends SurfaceView implements SurfaceHolder.Callbac
 
     }
 
-    private void SendVideo(byte[] data, int cameraId, int ts) {
+    private void SendVideo(byte[] data, int cameraId, long ts) {
         //System.out.println("=============sss ts============"+ts);
         JniUtils.getInstance().setVideoData(data, ts, cameraId);
     }
@@ -688,8 +688,8 @@ public class LocalVideoView extends SurfaceView implements SurfaceHolder.Callbac
     /**
      * 处理时间戳：-1表示该图片不处理。
      */
-    private int GetStampTime() {
-        int ret_ts = 0;
+    private long GetStampTime() {
+        long ret_ts = 0;
 
         //这里要进行丢图片的操作。
         if (timestamp > Integer.MAX_VALUE) {
@@ -714,7 +714,7 @@ public class LocalVideoView extends SurfaceView implements SurfaceHolder.Callbac
                     //currCount = (now - beginTime) * mPreviewRate/1000;
                     timestamp = timestamp + temptimestamp;
                     //去除后两位
-                    ret_ts = (int) timestamp / 100 * 100;
+                    ret_ts =  timestamp / 100 * 100;
                     currCount++;
                     lastTime = now;
                 } else {
