@@ -84,6 +84,10 @@ public class RemoteVideoViewGL extends RemoteVideoView {
             return;
         }
 
+        if (len == 0) {
+            return;
+        }
+
 //        Log.i(TAG, "id=" + id + " showVideo: ---------" + width + "w_h" + height + "_direction" + direction);
         if (null == mVideoFrame || width != mWidth || height != mHeight
                 || (direction != videoDir)) {

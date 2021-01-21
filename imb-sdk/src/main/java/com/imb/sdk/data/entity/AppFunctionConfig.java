@@ -173,7 +173,7 @@ public class AppFunctionConfig implements Serializable {
         }
 
         private void defaultConfig() {
-            aecmType = 1;
+            aecmType = 0;
             aecmEnable = 1;
             aecmMode = 4;
 
@@ -188,8 +188,8 @@ public class AppFunctionConfig implements Serializable {
             streamDelay = 170;
             streamAnalogLevel = 100;
 
-            samplePerChn = 480;
-            sampleRateHz = 48000;
+            samplePerChn = 160;
+            sampleRateHz = 16000;
             channelNum = 1;
             volumeSent = 1;
         }

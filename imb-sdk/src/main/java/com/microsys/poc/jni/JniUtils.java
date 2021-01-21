@@ -149,8 +149,6 @@ public final class JniUtils {
     private List<String> esipHeadList = new ArrayList<String>();
 
     private JniUtils() {
-        sampleRateInHz = 48000;
-        sizeInShorts = 960;
         LogUtil.getInstance().logWithMethod(new Exception(), "jniUtils init", "x");
     }
 
@@ -1852,7 +1850,7 @@ public final class JniUtils {
      * @param content
      * @return 0:成功
      */
-    public native int PocSendSubcribe(String content);
+    public native int PocSendSubscribe(String content, int id);
 
     /**
      * 设置视频信息
@@ -1963,11 +1961,6 @@ public final class JniUtils {
      */
 
     public native int PocSendSelfLocationData(String data);
-
-    /**
-     * 获得加密钥匙
-     */
-    public native String PocGetKey();
 
     /**
      * 设置通话模式

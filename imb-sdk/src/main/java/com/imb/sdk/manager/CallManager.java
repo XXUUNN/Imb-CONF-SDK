@@ -127,24 +127,26 @@ public class CallManager extends BaseManager {
      * 如果当前已经在会议中 那么调用后，服务端会把自己呼起来
      */
     public void subscribePoc() {
-        JniUtils.getInstance().PocSendSubcribe("");
+        JniUtils.getInstance().PocSendSubscribe("", 0);
     }
 
-    public void enableReadWriteAudioAndVideo(boolean enableRead, boolean enableWrite){
+    public void enableReadWriteAudioAndVideo(boolean enableRead, boolean enableWrite) {
         JniUtils.getInstance().enableReadWriteAudioAndVideo(enableRead, enableWrite);
     }
 
     /**
      * 开始显示视频流
+     *
      * @param isMultiStreams 通话 只有一个流 就是false 否则true
      */
-    public void startShowVideo(boolean isMultiStreams){
+    public void startShowVideo(boolean isMultiStreams) {
         JniUtils.getInstance().prepareStartVideoShow(isMultiStreams);
     }
+
     /**
      * 停止显示视频流
      */
-    public void stopShowVideo(){
+    public void stopShowVideo() {
         JniUtils.getInstance().prepareStopVideoShow();
     }
 }
