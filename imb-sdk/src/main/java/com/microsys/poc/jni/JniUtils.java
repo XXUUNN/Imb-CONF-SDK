@@ -90,9 +90,9 @@ public final class JniUtils {
         System.loadLibrary("pocclient_jni");
         System.loadLibrary("opus");
         System.loadLibrary("ogg");
-        System.loadLibrary("webrtc_ns");
-        System.loadLibrary("webrtc_aecm");
-        System.loadLibrary("webrtc_vad");
+//        System.loadLibrary("webrtc_ns");
+//        System.loadLibrary("webrtc_aecm");
+//        System.loadLibrary("webrtc_vad");
         System.loadLibrary("my_webrtc");
         System.loadLibrary("webrtc_audio_preprocessing");
     }
