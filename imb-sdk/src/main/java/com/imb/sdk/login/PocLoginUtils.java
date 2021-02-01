@@ -779,6 +779,15 @@ public class PocLoginUtils {
         }
 
         private PocLoginResult getLoginResult(int code, String msg) {
+            if (code != PocConstant.RegisterResult.RESULT_SUCCESS) {
+                //登录失败 就清理掉刚开始可能开始了的库里的线程 库里收报循环超时500ms 这里延迟501保证退出循环
+                logout();
+                try {
+                    Thread.sleep(501);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             return new PocLoginResult(code, msg);
         }
 
