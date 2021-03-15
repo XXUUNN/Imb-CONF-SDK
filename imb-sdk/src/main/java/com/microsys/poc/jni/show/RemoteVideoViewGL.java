@@ -99,6 +99,9 @@ public class RemoteVideoViewGL extends RemoteVideoView {
                 mHeight = height;
                 videoDir = direction;
 
+                if (len == 1) {
+                    len = 0;
+                }
                 mVideoFrame = ByteBuffer.allocateDirect(len + 1);
                 mPreview.setBuffer(mVideoFrame, mWidth, mHeight, videoDir);
             }
@@ -207,7 +210,7 @@ public class RemoteVideoViewGL extends RemoteVideoView {
     public void hideView() {
         //改变大小 模拟一个1宽高的数据
         if (mPreview != null) {
-            setVideoData(tempData, 0, 1, 1, VideoDirection.ANDROID_BACK_PORTRAIT);
+            setVideoData(tempData, 1, 1, 1, VideoDirection.ANDROID_BACK_PORTRAIT);
         }
     }
 
