@@ -270,7 +270,7 @@ public class VideoShowManager {
             return null;
         }
 
-        Log.e(TAG, "realTakeData: "+space);
+//        Log.e(TAG, "realTakeData: "+space);
         return take;
     }
 
