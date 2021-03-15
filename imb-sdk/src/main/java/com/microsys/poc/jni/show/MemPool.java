@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 
 public class MemPool {
+    private static final int CAPACITY = 15;
 
 
     private LinkedBlockingDeque<byte[]> cacheList = new LinkedBlockingDeque<>();
@@ -25,7 +26,7 @@ public class MemPool {
                 }
             }
             //没找到 就生成一个
-            if (count < 5) {
+            if (count < CAPACITY) {
                 //直接生成一个
                 byte[] outData = new byte[size];
                 Log.i("MemPool", "allocMemory: ");

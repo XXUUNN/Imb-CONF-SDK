@@ -1204,23 +1204,25 @@ public final class JniUtils {
         }
     }
 
-    // 是否第一次进入
-    private boolean isFirstTime = true;
-    private long firstStampTime = 0;
-    private long lastStampTime = 0;
-
     public void resetRemoteVideoData() {
-        Log.i(TAG1, "resetRemoteVideoData: ");
+        Log.i(TAG, "resetRemoteVideoData: ");
+        if (AvcDecoderAsync.deCodecMode == 1) {
+            //硬解码 解码器是复用的需要清空缓存
+            flushAllDecoder();
+        }
         MultiVideoShowManager.clearAllVideo();
     }
 
     public void resetRemoteVideoData(int id) {
-        Log.i(TAG1, "resetRemoteVideoData: ");
+        Log.i(TAG, "resetRemoteVideoData: ");
+        if (AvcDecoderAsync.deCodecMode == 1) {
+            //硬解码 解码器是复用的需要清空缓存
+            flushDecoder(id);
+        }
         MultiVideoShowManager.get(id).clearVideoData();
     }
 
     private static final String TAG = "JniUtils";
-    private static final String TAG1 = "cacheLastFrame";
 
     public byte[] allocMemory(int id, int len) {
         VideoShowManager videoShowManager = MultiVideoShowManager.get(id);
@@ -1254,12 +1256,6 @@ public final class JniUtils {
             return;
         }
 
-        if (isFirstTime) {
-            firstStampTime = stampTime;
-            lastStampTime = stampTime;
-            isFirstTime = false;
-        }
-
         int id;
         if (ssrc == 0) {
             id = MultiVideoShowManager.DEFAULT_ID;
@@ -1272,7 +1268,7 @@ public final class JniUtils {
 
         Log.i(TAG, "writeVideo: " + len + "_" + stampTime);
 
-        if (null != RemoteViewManager.adaptiveGet(id) && null != data && len > 0) {
+        if (null != RemoteViewManager.adaptiveGet(id) && len > 0) {
             if (AvcDecoderAsync.deCodecMode == 1) {
                 AvcDecoderAsync decoder = getDecoder(id);
                 if (decoder != null) {
@@ -1291,8 +1287,7 @@ public final class JniUtils {
                 recvData.setData(outputData);
                 recvData.setWidth(width);
                 recvData.setHeight(height);
-                long ptsUsec = computePresentationTime(stampTime);
-                recvData.setCpTime(ptsUsec);
+                recvData.setCpTime(stampTime);
                 recvData.setDirection(cameraTowards);
                 recvData.setDataLen(len);
                 try {
@@ -1304,20 +1299,24 @@ public final class JniUtils {
         }
     }
 
-    /**
-     * Generates the presentation time for frame N, in microseconds.
-     */
-    private long computePresentationTime(long stampTime) {
+    private final List<AvcDecoderAsync> decoderList = new ArrayList<>();
 
-        if (stampTime < lastStampTime) {
-            firstStampTime = stampTime;
+    private void flushDecoder(int id) {
+        synchronized (decoderList) {
+            AvcDecoderAsync decoder = getDecoder(id);
+            if (decoder != null) {
+                decoder.flush();
+            }
         }
-        lastStampTime = stampTime;
-
-        return (long) (132 + (stampTime - firstStampTime) * 1000000 / 90000);
     }
 
-    private final List<AvcDecoderAsync> decoderList = new ArrayList<>();
+    private void flushAllDecoder() {
+        synchronized (decoderList) {
+            for (AvcDecoderAsync avcDecoderAsync : decoderList) {
+                avcDecoderAsync.flush();
+            }
+        }
+    }
 
     private AvcDecoderAsync getDecoder(int id) {
         synchronized (decoderList) {
@@ -1412,10 +1411,6 @@ public final class JniUtils {
         }
 
         MultiVideoShowManager.stopAll();
-
-        isFirstTime = true;
-        firstStampTime = 0;
-        lastStampTime = 0;
     }
 
     private void destroyAvcDecoder(AvcDecoderAsync decoder) {

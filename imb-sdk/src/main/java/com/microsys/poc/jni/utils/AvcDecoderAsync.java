@@ -335,6 +335,10 @@ public class AvcDecoderAsync {
         return dir;
     }
 
+    private long getOriTimestamp(long timestamp) {
+        return timestamp / 1000;
+    }
+
     public void inputDecodecData1(byte[] encodecData, int length, long stampTime, int videoDirection) {
         try {
             ByteBuffer[] decoderInputBuffers = decoder.getInputBuffers();
@@ -380,11 +384,9 @@ public class AvcDecoderAsync {
             int width = 0;
             int height = 0;
             decoderOutputFormat = decoder.getOutputFormat();
-            if (null != decoderOutputFormat) {
-                colorFormat = decoderOutputFormat.getInteger(MediaFormat.KEY_COLOR_FORMAT);
-                width = decoderOutputFormat.getInteger(MediaFormat.KEY_WIDTH);
-                height = decoderOutputFormat.getInteger(MediaFormat.KEY_HEIGHT);
-            }
+            colorFormat = decoderOutputFormat.getInteger(MediaFormat.KEY_COLOR_FORMAT);
+            width = decoderOutputFormat.getInteger(MediaFormat.KEY_WIDTH);
+            height = decoderOutputFormat.getInteger(MediaFormat.KEY_HEIGHT);
 
             ByteBuffer outputFrame = decoderOutputBuffers[index];
 
@@ -393,6 +395,7 @@ public class AvcDecoderAsync {
 
             long timestamp = info.presentationTimeUs;
             int direction = getDirection(timestamp);
+            timestamp = getOriTimestamp(timestamp);
 
             VideoRecvData recvData = new VideoRecvData();
             if (info.size == 0) {
@@ -613,6 +616,21 @@ public class AvcDecoderAsync {
 //            Log.i(TAG, "outputFromCache: "+ data.getCpTime());
 //        }
         return data;
+    }
+
+
+    /**
+     * 同一个解码器 可能会解码 不同的人的视频
+     * 因此 切换时 会需要清理缓存
+     */
+    public void flush(){
+        try {
+            if (decoder != null) {
+                decoder.flush();
+            }
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
     }
 
     public interface Callback {

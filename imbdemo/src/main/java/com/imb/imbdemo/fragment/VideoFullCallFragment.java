@@ -92,6 +92,12 @@ public class VideoFullCallFragment extends BaseFullCallFragment {
                 hangUp();
             }
         });
+        onCallView.findViewById(R.id.btn_camera).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                localPreview.switchCamera();
+            }
+        });
         onCallView.findViewById(R.id.media_view).bringToFront();
     }
 
